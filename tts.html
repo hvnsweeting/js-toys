@@ -16,6 +16,7 @@ function speak() {
     text = document.getElementById("text").value;
     utter = new SpeechSynthesisUtterance(text)
     voices = synth.getVoices()
+    console.log(`Number of voices: ${voices.length}`);
 
     if (voices.length > 0) {
         utter.rate = 0.9 // speed - tốc độ

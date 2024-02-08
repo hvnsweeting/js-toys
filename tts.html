@@ -1,0 +1,30 @@
+<html>
+<body>
+<textarea id="text" rows="24" cols="100">
+ In my younger and more vulnerable years my father gave me some advice that I’ve been turning over in my mind ever since.
+
+“Whenever you feel like criticizing anyone,” he told me, “just remember that all the people in this world haven’t had the advantages that you’ve
+</textarea>
+<br>
+<button id="speak">Speak</button>
+
+<script>
+button = document.getElementById("speak");
+
+function speak() {
+    synth = window.speechSynthesis
+    text = document.getElementById("text").value;
+    utter = new SpeechSynthesisUtterance(text)
+    voices = synth.getVoices()
+
+    if (voices.length > 0) {
+        utter.rate = 0.9 // speed - tốc độ
+        synth.speak(utter)
+    } else {
+        alert("No voice, please install speech engine like: 'speech-dispatcher' or 'espeak-ng'")
+    }
+}
+
+button.addEventListener('click', speak);
+</script>
+</body></html>

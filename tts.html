@@ -1,33 +1,37 @@
-<html>
-    <head>
-        <title>JavaScript toys - by https://pymi.vn</title>
-        <link rel="stylesheet" href="css/pico.min.css">
-    </head>
-    <body>
-        <h2>Simple JavaScript Text-to-Speech site - by <a href="https://pymi.vn">Pymi.vn</a></h2>
 
-        <textarea id="text" rows="24" >
-In my younger and more vulnerable years my father gave me some advice that I’ve been turning over in my mind ever since.
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JavaScript toys - by https://pymi.vn</title>
+    <link rel="stylesheet" href="css/pico.min.css">
+  </head>
+  <body>
+    <h2>Simple JavaScript Text-to-Speech site - by <a href="https://pymi.vn">Pymi.vn</a></h2>
 
-“Whenever you feel like criticizing anyone,” he told me, “just remember that all the people in this world haven’t had the advantages that you’ve
-        </textarea>
-            <br>
-            <button id="speak">Speak</button>
+    <textarea id="text" rows="24" >
+      In my younger and more vulnerable years my father gave me some advice that I’ve been turning over in my mind ever since.
 
-            <script>
-                button = document.getElementById("speak");
+      “Whenever you feel like criticizing anyone,” he told me, “just remember that all the people in this world haven’t had the advantages that you’ve
+    </textarea>
+      <br>
+      <button id="speak">Speak</button>
 
-                function speak() {
-                    synth = window.speechSynthesis
-                    text = document.getElementById("text").value;
-                    utter = new SpeechSynthesisUtterance(text)
-                    voices = synth.getVoices()
-                    utter.rate = 0.9 // speed - tốc độ
-                    synth.speak(utter)
-                }
+      <script>
+        button = document.getElementById("speak");
 
-                button.addEventListener('click', speak);
-            </script>
-    </body>
+        function speak() {
+          synth = window.speechSynthesis
+          text = document.getElementById("text").value;
+          utter = new SpeechSynthesisUtterance(text)
+          voices = synth.getVoices()
+          utter.rate = 0.9 // speed - tốc độ
+          synth.speak(utter)
+        }
+
+        button.addEventListener('click', speak);
+      </script>
+  </body>
 </html>
 

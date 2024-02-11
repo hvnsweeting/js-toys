@@ -28,18 +28,18 @@
 
     <script>
       canvas = document.getElementById("banh");
-      canvas.width = window.innerWidth;
-      canvas.height = canvas.width;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = canvas.width;
       ctx = canvas.getContext("2d");
       ctx.fillStyle = '#44583b';
-      ctx.fillRect(0, 0, 300, 300);
+      ctx.fillRect(0, 0, width, height);
 
       ctx.fillStyle = '#c7cab8';
-      ctx.fillRect(95, 0, 10, 300);
-      ctx.fillRect(195, 0, 10, 300);
-      ctx.fillRect(0, 95, 300, 10);
-      ctx.fillRect(0, 195, 300, 10);
-      ctx.fillText("Chung cake", 240, 20)
+      ctx.fillRect(width/3-5, 0, 10, height);
+      ctx.fillRect(width/3*2-5, 0, 10, height);
+      ctx.fillRect(0, height/3-5, width, 10);
+      ctx.fillRect(0, height/3*2-5, width, 10);
+      ctx.fillText("Chung cake", width-60, 20)
 
 
       /* Japanese flag
@@ -51,17 +51,17 @@
       diameter : three-fifths of the flags' height
       */
       canvas = document.getElementById("jp");
-      canvas.width = window.innerWidth;
-      canvas.height = canvas.width/3*2;
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = canvas.width/3*2;
       ctx = canvas.getContext("2d");
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, 300, 200);
+      ctx.fillRect(0, 0, w, h);
 
       ctx.fillStyle = '#ff2b2a';
       ctx.beginPath();
-      ctx.arc(150, 100, 60, 0, 2 * 3.14, false);
+      ctx.arc(w/2, h/2, h/5*3/2, 0, 2 * 3.14, false);
       ctx.fill();
-      ctx.fillText("JP", 280, 20)
+      ctx.fillText("JP", w-20, 20)
     </script>
 
   </body>

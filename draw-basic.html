@@ -6,23 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JavaScript toys - by https://pymi.vn</title>
     <link rel="stylesheet" href="css/pico.min.css">
+    <style>
+        canvas {
+            width: 100%;
+        }
+    </style>
   </head>
   <body>
     <div class="container">
 
       <h2>Simple shapes drawing - by <a href="https://pymi.vn">Pymi.vn</a></h2>
 
-      <canvas id="banh" width=300 height=300>
+      <canvas id="banh">
       </canvas>
       <br>
       <br>
-      <canvas id="jp" width=300 height=200>
+      <canvas id="jp">
       </canvas>
     </div>
 
 
     <script>
       canvas = document.getElementById("banh");
+      canvas.width = window.innerWidth;
+      canvas.height = canvas.width;
       ctx = canvas.getContext("2d");
       ctx.fillStyle = '#44583b';
       ctx.fillRect(0, 0, 300, 300);
@@ -44,6 +51,8 @@
       diameter : three-fifths of the flags' height
       */
       canvas = document.getElementById("jp");
+      canvas.width = window.innerWidth;
+      canvas.height = canvas.width/3*2;
       ctx = canvas.getContext("2d");
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, 300, 200);

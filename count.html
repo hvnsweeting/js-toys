@@ -26,6 +26,7 @@
 
             button = document.getElementById("speak");
 
+
             function speak() {
                 synth = window.speechSynthesis
                 to = Number(document.getElementById("to").value);
@@ -35,9 +36,10 @@
                 text = '';
                 for (i=1; i<=to; i++)
                 {
-                    text = `${text}. ${i}`
+                    text += ` ${i}.`
                 }
-                utter = new SpeechSynthesisUtterance(text)
+                utter = new SpeechSynthesisUtterance(text);
+
                 utter.rate = 0.9 // speed - tốc độ
                 synth.speak(utter)
 

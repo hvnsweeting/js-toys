@@ -23,12 +23,8 @@
         <button onClick="window.location.reload();">Stop</button>
 
         <script>
+
             button = document.getElementById("speak");
-
-            function onboundary(e) {
-                console.log(e);
-            }
-
 
             function speak() {
                 synth = window.speechSynthesis
@@ -36,12 +32,14 @@
 
                 voices = synth.getVoices()
 
+                text = '';
                 for (i=1; i<=to; i++)
                 {
-                    utter = new SpeechSynthesisUtterance(`${i}`)
-                    utter.rate = 0.9 // speed - tốc độ
-                    synth.speak(utter)
+                    text = `${text}. ${i}`
                 }
+                utter = new SpeechSynthesisUtterance(text)
+                utter.rate = 0.9 // speed - tốc độ
+                synth.speak(utter)
 
             }
 

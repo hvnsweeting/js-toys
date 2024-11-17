@@ -1,0 +1,51 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>JavaScript toys - by https://pymi.vn</title>
+        <link rel="stylesheet" href="css/pico.min.css">
+    </head>
+    <body>
+        <h2>Count aloud - by <a href="https://pymi.vn">Pymi.vn</a></h2>
+        <label>Count to:</label>
+        <input id="to" value=100>
+        </input>
+
+        <br>
+
+        <center>
+            <h3 id="number">
+            </h3>
+        </center>
+        <button id="speak">Count</button>
+
+        <script>
+            button = document.getElementById("speak");
+
+            function onboundary(e) {
+                console.log(e);
+            }
+
+
+            function speak() {
+                synth = window.speechSynthesis
+                to = Number(document.getElementById("to").value);
+
+                voices = synth.getVoices()
+
+                for (i=1; i<=to; i++)
+                {
+                    utter = new SpeechSynthesisUtterance(`${i}`)
+                    utter.rate = 1 // speed - tốc độ
+                    synth.speak(utter)
+                }
+
+            }
+
+            button.addEventListener('click', speak);
+        </script>
+    </body>
+</html>
+

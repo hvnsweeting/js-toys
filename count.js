@@ -13,6 +13,7 @@ let voice;
 
 
 function populateVoiceList() {
+    document.getElementById("debug").innerText = `${voices.length} voices.`
 
     for (let i = 0; i < voices.length; i++) {
         if (! ["en-us", "vi", "ja"].includes(voices[i].lang.toLowerCase())) {

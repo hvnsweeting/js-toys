@@ -11,34 +11,11 @@ let voices = synth.getVoices();
 let voiceSelect = document.getElementById("lang");
 let voice;
 
-function countUp() {
-    to = Number(document.getElementById("to").value);
-    document.documentElement.setAttribute("lang", document.getElementById("lang").value);
-    counter = 1;
-    doCountUp()
-}
-
-function countDown() {
-    if (!intervalId) {
-        intervalId = setInterval(doCountDown, 1500)
-    }
-    counter = Number(document.getElementById("to").value);
-    document.documentElement.setAttribute("lang", document.getElementById("lang").value);
-    to = 1
-
-    const selectedOption =
-        voiceSelect.selectedOptions[0].getAttribute("data-name");
-    for (let i = 0; i < voices.length; i++) {
-        if (voices[i].name === selectedOption) {
-            voice = voices[i];
-        }
-    }
-}
 
 function populateVoiceList() {
 
     for (let i = 0; i < voices.length; i++) {
-        if (! ["en-US", "vi", "ja"].includes(voices[i].lang)) {
+        if (! ["en-us", "vi", "ja"].includes(voices[i].lang.toLowerCase())) {
             continue
         }
         const option = document.createElement("option");
@@ -56,30 +33,20 @@ function populateVoiceList() {
 
 populateVoiceList();
 
-function doCountDown() {
-    if (counter == to) {
-        clearInterval(intervalId);
-        intervalId = null;
+async function countDown() {
+
+    counter = Number(document.getElementById("to").value);
+    document.documentElement.setAttribute("lang", document.getElementById("lang").value);
+    to = 1
+
+    const selectedOption =
+        voiceSelect.selectedOptions[0].getAttribute("data-name");
+    for (let i = 0; i < voices.length; i++) {
+        if (voices[i].name === selectedOption) {
+            voice = voices[i];
+        }
     }
-
-    utter = new SpeechSynthesisUtterance(`${counter}`);
-    utter.voice = voice;
-    utter.rate = 0.9; // speed - tốc độ
-
-    number.innerText = `${counter}`
-    synth.speak(utter);
-    counter--;
-}
-
-
-function sleep (time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-
-async function doCountUp() {
-
-    for (i=1; i<=to; i++)
+    for (i=counter; i>=to; i--)
     {
         utter = new SpeechSynthesisUtterance(`${i}`);
         utter.voice = voice;
@@ -88,8 +55,27 @@ async function doCountUp() {
         synth.speak(utter)
         await new Promise(resolve => setTimeout(resolve, 1500));
     }
+}
 
 
+function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+
+async function countUp() {
+    to = Number(document.getElementById("to").value);
+    document.documentElement.setAttribute("lang", document.getElementById("lang").value);
+    counter = 1;
+
+    for (i=1; i<=to; i++)
+    {
+        utter = new SpeechSynthesisUtterance(`${i}`);
+        utter.rate = 0.9 // speed - tốc độ
+        number.innerText = `${i}`
+        synth.speak(utter)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+    }
 }
 
 

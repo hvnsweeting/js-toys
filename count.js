@@ -8,6 +8,8 @@ let number = document.getElementById("number");
 let debug = document.getElementById("debug");
 const synth = window.speechSynthesis;
 let voices = synth.getVoices();
+// for chrome
+synth.addEventListener('voiceschanged', () =>{voices = synth.getVoices()})
 let voiceSelect = document.getElementById("lang");
 let voice;
 

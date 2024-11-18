@@ -10,13 +10,13 @@ function countUp() {
     to = Number(document.getElementById("to").value);
     counter = 1;
     if (!intervalId) {
-        intervalId = setInterval(doCountUp, 1000)
+        intervalId = setInterval(doCountUp, 1500)
     }
 }
 
 function countDown() {
     if (!intervalId) {
-        intervalId = setInterval(doCountDown, 1000)
+        intervalId = setInterval(doCountDown, 1500)
     }
     counter = Number(document.getElementById("to").value);
     to = 1

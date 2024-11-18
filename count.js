@@ -15,9 +15,7 @@ function countUp() {
     to = Number(document.getElementById("to").value);
     document.documentElement.setAttribute("lang", document.getElementById("lang").value);
     counter = 1;
-    if (!intervalId) {
-        intervalId = setInterval(doCountUp, 1500)
-    }
+    doCountUp()
 }
 
 function countDown() {
@@ -74,27 +72,26 @@ function doCountDown() {
 }
 
 
-function doCountUp() {
-    if (counter == to) {
-        clearInterval(intervalId)
-        intervalId = null;
+function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+
+async function doCountUp() {
+
+    for (i=1; i<=to; i++)
+    {
+        utter = new SpeechSynthesisUtterance(`${i}`);
+        utter.voice = voice;
+        utter.rate = 0.9 // speed - tốc độ
+        number.innerText = `${i}`
+        synth.speak(utter)
+        await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
-    utter = new SpeechSynthesisUtterance(`${counter}`);
-    utter.rate = 0.9; // speed - tốc độ
 
-    number.innerText = `${counter}`
-    synth.speak(utter);
-    counter++;
 }
 
-function stop() {
-    clearInterval(intervalId);
-    intervalId = null;
-    counter = 1;
-    number.innerText = '_';
-}
 
 document.getElementById("count").addEventListener('click', countUp);
 document.getElementById("countDown").addEventListener('click', countDown);
-document.getElementById("stop").addEventListener('click', stop);

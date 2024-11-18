@@ -16,37 +16,18 @@
         <br>
 
         <center>
-            <h3 id="number">
+            <h3 id="number" style="font-size:5em">
+                <mark>
+                _
+                </mark>
             </h3>
         </center>
-        <button id="speak">Count</button>
-        <button onClick="window.location.reload();">Stop</button>
+        <button id="count">Count up</button>
+        <button id="countDown" class="secondary">Count down</button>
+        <button id="stop" class="contrast">Stop</button>
 
-        <script>
+        <script src="./count.js"></script>
 
-            button = document.getElementById("speak");
-
-
-            function speak() {
-                synth = window.speechSynthesis
-                to = Number(document.getElementById("to").value);
-
-                voices = synth.getVoices()
-
-                text = '';
-                for (i=1; i<=to; i++)
-                {
-                    text += ` ${i}.`
-                }
-                utter = new SpeechSynthesisUtterance(text);
-
-                utter.rate = 0.9 // speed - tốc độ
-                synth.speak(utter)
-
-            }
-
-            button.addEventListener('click', speak);
-        </script>
     </body>
 </html>
 

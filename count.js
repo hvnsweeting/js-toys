@@ -5,6 +5,11 @@ let counter;
 
 
 let number = document.getElementById("number");
+let debug = document.getElementById("debug");
+const synth = window.speechSynthesis;
+let voices = synth.getVoices();
+let voiceSelect = document.getElementById("lang");
+let voice;
 
 function countUp() {
     to = Number(document.getElementById("to").value);
@@ -22,18 +27,45 @@ function countDown() {
     counter = Number(document.getElementById("to").value);
     document.documentElement.setAttribute("lang", document.getElementById("lang").value);
     to = 1
+
+    const selectedOption =
+        voiceSelect.selectedOptions[0].getAttribute("data-name");
+    for (let i = 0; i < voices.length; i++) {
+        if (voices[i].name === selectedOption) {
+            voice = voices[i];
+        }
+    }
 }
 
-function doCountDown() {
-    synth = window.speechSynthesis
+function populateVoiceList() {
 
-    voices = synth.getVoices()
+    for (let i = 0; i < voices.length; i++) {
+        if (! ["en-US", "vi", "ja"].includes(voices[i].lang)) {
+            continue
+        }
+        const option = document.createElement("option");
+        option.textContent = `${voices[i].name} (${voices[i].lang})`;
+
+        if (voices[i].default) {
+            option.textContent += " — DEFAULT";
+        }
+
+        option.setAttribute("data-lang", voices[i].lang);
+        option.setAttribute("data-name", voices[i].name);
+        voiceSelect.appendChild(option);
+    }
+}
+
+populateVoiceList();
+
+function doCountDown() {
     if (counter == to) {
         clearInterval(intervalId);
         intervalId = null;
     }
 
     utter = new SpeechSynthesisUtterance(`${counter}`);
+    utter.voice = voice;
     utter.rate = 0.9; // speed - tốc độ
 
     number.innerText = `${counter}`
@@ -43,9 +75,6 @@ function doCountDown() {
 
 
 function doCountUp() {
-    synth = window.speechSynthesis
-
-    voices = synth.getVoices()
     if (counter == to) {
         clearInterval(intervalId)
         intervalId = null;

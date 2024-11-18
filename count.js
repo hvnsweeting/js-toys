@@ -13,6 +13,10 @@ synth.addEventListener('voiceschanged', () =>{voices = synth.getVoices()})
 let voiceSelect = document.getElementById("lang");
 let voice;
 
+const getVoicebyLang = lang => speechSynthesis
+  .getVoices()
+  .find(voice => voice.lang.startsWith(lang))
+
 
 function populateVoiceList() {
 
@@ -69,13 +73,14 @@ function sleep (time) {
 
 async function countUp() {
     to = Number(document.getElementById("to").value);
-    document.documentElement.setAttribute("lang", document.getElementById("lang").value);
     counter = 1;
 
+    const lang = getVoicebyLang(document.getElementById("lang").value);
     for (i=1; i<=to; i++)
     {
         utter = new SpeechSynthesisUtterance(`${i}`);
         utter.rate = 0.9 // speed - tốc độ
+        utter.voice = lang;
         number.innerText = `${i}`
         synth.speak(utter)
         await new Promise(resolve => setTimeout(resolve, 1500));

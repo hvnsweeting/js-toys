@@ -8,6 +8,7 @@ let number = document.getElementById("number");
 
 function countUp() {
     to = Number(document.getElementById("to").value);
+    document.documentElement.lang=document.getElementById("lang").value;
     counter = 1;
     if (!intervalId) {
         intervalId = setInterval(doCountUp, 1500)
@@ -19,6 +20,7 @@ function countDown() {
         intervalId = setInterval(doCountDown, 1500)
     }
     counter = Number(document.getElementById("to").value);
+    document.documentElement.lang=document.getElementById("lang").value;
     to = 1
 }
 

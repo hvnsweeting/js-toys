@@ -10,15 +10,19 @@
     <body>
         <h2>Count aloud - by <a href="https://pymi.vn">Pymi.vn</a></h2>
         <label>Count to:</label>
-        <input id="to" value=100>
-        </input>
+        <input id="to" type="number" min=1 max=100 value=100/>
+        <select name="lang" id="lang">
+            <option value="en">English</option>
+            <option value="ja">Japanese</option>
+            <option value="vi">Vietnamese</option>
+        </select>
 
         <br>
 
         <center>
             <h3 id="number" style="font-size:5em">
                 <mark>
-                _
+                    _
                 </mark>
             </h3>
         </center>

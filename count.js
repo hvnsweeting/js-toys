@@ -17,6 +17,7 @@ const getVoicebyLang = lang => speechSynthesis
   .getVoices()
   .find(voice => voice.lang.startsWith(lang))
 
+document.getElementById("debug").innerText = `${voices.length} voices: ${voices.slice(0,3).map((i) => i.name)}...`
 
 async function countDown() {
 

@@ -18,42 +18,12 @@ const getVoicebyLang = lang => speechSynthesis
   .find(voice => voice.lang.startsWith(lang))
 
 
-function populateVoiceList() {
-
-    document.getElementById("debug").innerText = `${voices.length} voices: ${voices.slice(0,3).map((i) => i.name)}...`
-
-    for (let i = 0; i < voices.length; i++) {
-        if (! ["en-us", "vi", "ja"].includes(voices[i].lang.toLowerCase())) {
-            continue
-        }
-        const option = document.createElement("option");
-        option.textContent = `${voices[i].name} (${voices[i].lang})`;
-
-        if (voices[i].default) {
-            option.textContent += " — DEFAULT";
-        }
-
-        option.setAttribute("data-lang", voices[i].lang);
-        option.setAttribute("data-name", voices[i].name);
-        voiceSelect.appendChild(option);
-    }
-}
-
-populateVoiceList();
-
 async function countDown() {
 
     counter = Number(document.getElementById("to").value);
-    document.documentElement.setAttribute("lang", document.getElementById("lang").value);
     to = 1
 
-    const selectedOption =
-        voiceSelect.selectedOptions[0].getAttribute("data-name");
-    for (let i = 0; i < voices.length; i++) {
-        if (voices[i].name === selectedOption) {
-            voice = voices[i];
-        }
-    }
+    const voice = getVoicebyLang(document.getElementById("lang").value);
     for (i=counter; i>=to; i--)
     {
         utter = new SpeechSynthesisUtterance(`${i}`);
@@ -75,12 +45,12 @@ async function countUp() {
     to = Number(document.getElementById("to").value);
     counter = 1;
 
-    const lang = getVoicebyLang(document.getElementById("lang").value);
+    const voice = getVoicebyLang(document.getElementById("lang").value);
     for (i=1; i<=to; i++)
     {
         utter = new SpeechSynthesisUtterance(`${i}`);
         utter.rate = 0.9 // speed - tốc độ
-        utter.voice = lang;
+        utter.voice = voice;
         number.innerText = `${i}`
         synth.speak(utter)
         await new Promise(resolve => setTimeout(resolve, 1500));

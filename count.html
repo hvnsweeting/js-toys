@@ -8,13 +8,23 @@
         <link rel="stylesheet" href="css/pico.min.css">
     </head>
     <body>
-        <h2>Count aloud - by <a href="https://pymi.vn">Pymi.vn</a></h2>
+        <nav>
+            <ol>
+                <li> <a href="/">/</a> </li>
+                <li> <a href="./">/Count</a> </li>
+            </ol>
+        </nav>
+        <p>Count aloud - by <a href="https://pymi.vn">Pymi.vn</a></p>
         <label>Count to:</label>
         <input id="to" type="number" min=1 max=100 value="100"/>
         <select name="lang" id="lang">
             <option value="en">English</option>
-            <option value="ja">Japanese</option>
             <option value="vi">Vietnamese</option>
+            <option value="ja">Japanese</option>
+            <option value="zh">Chinese</option>
+            <option value="ko">Korean</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
         </select>
 
         <br>
@@ -30,8 +40,10 @@
         <button id="countDown" class="secondary">Count down</button>
         <button class="contrast" onClick="window.location.reload();">Stop</button>
 
-        <span id="debug">
-        </span>
+        <details>
+            <span id="debug">
+            </span>
+        </details>
 
         <script src="./count.js"></script>
 

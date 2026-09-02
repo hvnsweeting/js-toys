@@ -8,14 +8,7 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Canvas Area on Top -->
-    <main class="canvas-viewport" id="canvas-viewport" aria-label="Canvas Workspace">
-      <div class="canvas-wrapper" id="canvas-wrapper">
-        <canvas id="paint-canvas" width="1024" height="768"></canvas>
-      </div>
-    </main>
-
-    <!-- Top-Center Floating Canvas Controls -->
+    <!-- Top Canvas Controls (Top Toolbar) -->
     <div class="floating-controls" id="floating-controls" role="toolbar" aria-label="Canvas Quick Tools">
       <button type="button" id="btn-eraser" class="tool-btn btn-eraser" aria-label="Eraser" title="Eraser (💩)" aria-pressed="false">
         <span class="tool-emoji" aria-hidden="true">💩</span>
@@ -62,6 +55,13 @@
         </svg>
       </button>
     </div>
+
+    <!-- Canvas Drawing Area (fills remaining space) -->
+    <main class="canvas-viewport" id="canvas-viewport" aria-label="Canvas Workspace">
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="paint-canvas" width="1024" height="768"></canvas>
+      </div>
+    </main>
 
     <div id="toolbar" class="toolbar" role="toolbar" aria-label="Drawing Tools">
       <!-- Color Palette -->

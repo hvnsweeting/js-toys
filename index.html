@@ -3,18 +3,496 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/pico.min.css">
-    <title>Hello, world!</title>
+    <title>★ MY JAVASCRIPT TOYS ★</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-dark: #121424;
+        --card-bg: #16213e;
+        --card-border: #0f3460;
+        --accent-red: #e94560;
+        --accent-cyan: #00f0ff;
+        --accent-green: #39ff14;
+        --accent-yellow: #ffe600;
+        --accent-magenta: #ff007f;
+        --text-light: #f1f2f6;
+        --text-dim: #94a3b8;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Press Start 2P', monospace, cursive;
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+        position: relative;
+        overflow-x: hidden;
+        image-rendering: pixelated;
+        -webkit-font-smoothing: none;
+      }
+
+      /* CRT Scanline & Screen Curvature/Vignette Overlay */
+      .scanlines {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 999;
+        background:
+          linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
+          radial-gradient(circle at center, rgba(0, 0, 0, 0) 65%, rgba(0, 0, 0, 0.7) 100%);
+        background-size: 100% 4px, 100% 100%;
+        opacity: 0.85;
+      }
+
+      /* Main Cabinet Container */
+      .screen-container {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Arcade Header */
+      header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .title {
+        font-size: clamp(16px, 3.6vw, 30px);
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+        line-height: 1.4;
+        text-shadow:
+          3px 3px 0px var(--accent-red),
+          6px 6px 0px #000;
+        animation: titleGlow 2.5s infinite alternate;
+      }
+
+      .star {
+        color: var(--accent-yellow);
+        display: inline-block;
+        animation: starTwinkle 1.5s infinite ease-in-out;
+      }
+
+      .subtitle-box {
+        display: inline-block;
+        background: #0b0c16;
+        border: 3px solid var(--accent-cyan);
+        box-shadow:
+          0 0 0 3px #000,
+          0 0 12px rgba(0, 240, 255, 0.4);
+        padding: 8px 16px;
+        margin-top: 4px;
+      }
+
+      .subtitle {
+        font-size: clamp(9px, 1.8vw, 13px);
+        color: var(--accent-cyan);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .blink-cursor {
+        animation: blink 0.8s infinite;
+        color: var(--accent-yellow);
+      }
+
+      /* Games Grid (4x1 desktop, 2x2 mobile) */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        width: 100%;
+        margin-bottom: 32px;
+      }
+
+      /* Card Link Style */
+      .card {
+        background-color: var(--card-bg);
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 22px 14px;
+        position: relative;
+        border: 4px solid var(--card-border);
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          6px 6px 0 0 #000;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+        cursor: pointer;
+      }
+
+      .card::before {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      /* Card Badges */
+      .card-tag {
+        font-size: 8px;
+        padding: 3px 6px;
+        margin-bottom: 14px;
+        background: #090c17;
+        border: 2px solid #233142;
+        color: var(--text-dim);
+        letter-spacing: 1px;
+      }
+
+      /* Card Icon */
+      .card-icon {
+        font-size: 54px;
+        line-height: 1;
+        margin-bottom: 16px;
+        filter: drop-shadow(3px 3px 0 #000);
+        transition: transform 0.15s ease;
+      }
+
+      /* Card Titles */
+      .card-title {
+        font-size: 12px;
+        text-align: center;
+        margin-bottom: 12px;
+        line-height: 1.4;
+        color: #ffffff;
+      }
+
+      /* Card Descriptions */
+      .card-desc {
+        font-size: 8px;
+        text-align: center;
+        color: var(--text-dim);
+        line-height: 1.6;
+        margin-bottom: 18px;
+        flex-grow: 1;
+      }
+
+      /* Action Prompt Button */
+      .card-btn {
+        font-size: 9px;
+        padding: 6px 10px;
+        background: #090c17;
+        color: #fff;
+        border: 2px solid #334155;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.12s ease;
+      }
+
+      /* Color Themes per Card on Hover */
+      .card-tts:hover {
+        border-color: var(--accent-cyan);
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(0, 240, 255, 0.5);
+      }
+      .card-tts:hover .card-title {
+        color: var(--accent-cyan);
+      }
+      .card-tts:hover .card-btn {
+        background: var(--accent-cyan);
+        color: #000;
+        border-color: #fff;
+        box-shadow: 0 0 8px var(--accent-cyan);
+      }
+
+      .card-count:hover {
+        border-color: var(--accent-green);
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(57, 255, 20, 0.5);
+      }
+      .card-count:hover .card-title {
+        color: var(--accent-green);
+      }
+      .card-count:hover .card-btn {
+        background: var(--accent-green);
+        color: #000;
+        border-color: #fff;
+        box-shadow: 0 0 8px var(--accent-green);
+      }
+
+      .card-draw:hover {
+        border-color: var(--accent-yellow);
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(255, 230, 0, 0.5);
+      }
+      .card-draw:hover .card-title {
+        color: var(--accent-yellow);
+      }
+      .card-draw:hover .card-btn {
+        background: var(--accent-yellow);
+        color: #000;
+        border-color: #fff;
+        box-shadow: 0 0 8px var(--accent-yellow);
+      }
+
+      .card-mydraw:hover {
+        border-color: var(--accent-magenta);
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(255, 0, 127, 0.5);
+      }
+      .card-mydraw:hover .card-title {
+        color: var(--accent-magenta);
+      }
+      .card-mydraw:hover .card-btn {
+        background: var(--accent-magenta);
+        color: #fff;
+        border-color: #fff;
+        box-shadow: 0 0 8px var(--accent-magenta);
+      }
+
+      /* Hover & Press Animations */
+      .card:hover {
+        transform: translateY(-6px) scale(1.02);
+        background-color: #1a274c;
+      }
+
+      .card:hover .card-icon {
+        transform: scale(1.1);
+      }
+
+      .card:active {
+        transform: translateY(2px) scale(0.98);
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          2px 2px 0 0 #000 !important;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .press-start {
+        color: var(--accent-yellow);
+        font-size: clamp(9px, 1.8vw, 12px);
+        letter-spacing: 2px;
+        animation: blink 1s infinite steps(2, start);
+        text-shadow: 2px 2px 0 #000;
+      }
+
+      .footer-meta {
+        font-size: 7px;
+        color: #556275;
+        letter-spacing: 1px;
+        line-height: 1.8;
+      }
+
+      /* Responsive Breakpoints: 2x2 on Mobile, 4x1 on Desktop */
+      @media (max-width: 860px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+
+        .card {
+          padding: 18px 10px;
+        }
+
+        .card-icon {
+          font-size: 44px;
+          margin-bottom: 12px;
+        }
+
+        .card-title {
+          font-size: 11px;
+        }
+
+        .card-desc {
+          font-size: 8px;
+          margin-bottom: 14px;
+        }
+      }
+
+      @media (max-width: 440px) {
+        body {
+          padding: 16px 8px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+
+        .card {
+          padding: 14px 8px;
+          border-width: 3px;
+        }
+
+        .card-tag {
+          font-size: 7px;
+          padding: 2px 4px;
+          margin-bottom: 10px;
+        }
+
+        .card-icon {
+          font-size: 36px;
+          margin-bottom: 10px;
+        }
+
+        .card-title {
+          font-size: 9px;
+          margin-bottom: 8px;
+        }
+
+        .card-desc {
+          font-size: 7px;
+          line-height: 1.5;
+          margin-bottom: 12px;
+        }
+
+        .card-btn {
+          font-size: 7px;
+          padding: 4px 6px;
+        }
+      }
+
+      /* Animations */
+      @keyframes titleGlow {
+        0% {
+          text-shadow:
+            3px 3px 0px var(--accent-red),
+            6px 6px 0px #000,
+            0 0 8px rgba(233, 69, 96, 0.4);
+        }
+        100% {
+          text-shadow:
+            3px 3px 0px var(--accent-magenta),
+            6px 6px 0px #000,
+            0 0 18px rgba(255, 0, 127, 0.7);
+        }
+      }
+
+      @keyframes starTwinkle {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.35; transform: scale(0.85); }
+      }
+
+      @keyframes blink {
+        0%, 49% { opacity: 1; }
+        50%, 100% { opacity: 0; }
+      }
+    </style>
   </head>
   <body>
-    <main class="container">
-      <h1>My JavaScript toys!</h1>
-      <ul>
-          <li><a href="./tts.html">Text-to-speech TTS</a></li>
-          <li><a href="./count.html">For kid: Count aloud - count number up and down - best on mobile</a></li>
-          <li><a href="./draw-basic.html">Canvas draw basic</a></li>
-          <li><a href="./mydraw/index.html">MyDraw - draw with color mixing like real paint</a></li>
-      </ul>
+    <!-- CRT Scanline Effect -->
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <main class="screen-container">
+      <!-- Arcade Marquee Header -->
+      <header>
+        <h1 class="title"><span class="star">★</span> MY JAVASCRIPT TOYS <span class="star">★</span></h1>
+        <div class="subtitle-box">
+          <span class="subtitle">"SELECT YOUR GAME" <span class="blink-cursor">_</span></span>
+        </div>
+      </header>
+
+      <!-- Game Cards Grid -->
+      <nav class="grid" aria-label="Game Selection">
+        <!-- 1. TTS -->
+        <a class="card card-tts" href="./tts.html">
+          <span class="card-tag">GAME 01</span>
+          <div class="card-icon" role="img" aria-label="Speaker">🔊</div>
+          <h2 class="card-title">Text-to-Speech</h2>
+          <p class="card-desc">Make your browser talk!</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 2. Count Aloud -->
+        <a class="card card-count" href="./count.html">
+          <span class="card-tag">GAME 02</span>
+          <div class="card-icon" role="img" aria-label="Numbers">🔢</div>
+          <h2 class="card-title">Count Aloud</h2>
+          <p class="card-desc">Count numbers up &amp; down</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 3. Draw Basic -->
+        <a class="card card-draw" href="./draw-basic.html">
+          <span class="card-tag">GAME 03</span>
+          <div class="card-icon" role="img" aria-label="Pencil">✏️</div>
+          <h2 class="card-title">Draw Basic</h2>
+          <p class="card-desc">Simple canvas drawing</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 4. MyDraw -->
+        <a class="card card-mydraw" href="./mydraw/index.html">
+          <span class="card-tag">GAME 04</span>
+          <div class="card-icon" role="img" aria-label="Palette">🎨</div>
+          <h2 class="card-title">MyDraw</h2>
+          <p class="card-desc">Paint with real color mixing</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+      </nav>
+
+      <!-- Footer / Press Start -->
+      <footer>
+        <div class="press-start">"PRESS START"</div>
+        <div class="footer-meta">
+          1 PLAYER &bull; FREE PLAY &bull; 8-BIT EDITION
+        </div>
+      </footer>
     </main>
   </body>
 </html>

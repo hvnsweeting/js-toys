@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MyDraw — Realistic Subtractive Color Painting</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Canvas Area on Top -->
+    <main class="canvas-viewport" id="canvas-viewport" aria-label="Canvas Workspace">
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="paint-canvas" width="1024" height="768"></canvas>
+      </div>
+    </main>
+
+    <!-- Top-Center Floating Canvas Controls -->
+    <div class="floating-controls" id="floating-controls" role="toolbar" aria-label="Canvas Quick Tools">
+      <button type="button" id="btn-eraser" class="tool-btn btn-eraser" aria-label="Eraser" title="Eraser (💩)" aria-pressed="false">
+        <span class="tool-emoji" aria-hidden="true">💩</span>
+      </button>
+
+      <div class="floating-divider" aria-hidden="true"></div>
+
+      <!-- Zoom Controls -->
+      <div class="zoom-controls" role="group" aria-label="Zoom Controls">
+        <button type="button" id="btn-zoom-out" class="tool-btn btn-zoom" aria-label="Zoom Out" title="Zoom Out">
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </button>
+        <span id="zoom-level-display" class="zoom-badge" aria-live="polite">100%</span>
+        <button type="button" id="btn-zoom-in" class="tool-btn btn-zoom" aria-label="Zoom In" title="Zoom In" disabled>
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="11" y1="8" x2="11" y2="14"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="floating-divider" aria-hidden="true"></div>
+
+      <!-- Save PNG Button -->
+      <button type="button" id="btn-save-file" class="tool-btn btn-save" aria-label="Save to PNG file" title="Save to PNG file (💾)">
+        <span class="tool-emoji" aria-hidden="true">💾</span>
+      </button>
+
+      <div class="floating-divider" aria-hidden="true"></div>
+
+      <!-- Gallery Button -->
+      <button type="button" id="btn-gallery" class="tool-btn btn-gallery" aria-label="Saved Drawings Gallery" title="Gallery">
+        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+      </button>
+    </div>
+
+    <div id="toolbar" class="toolbar" role="toolbar" aria-label="Drawing Tools">
+      <!-- Color Palette -->
+      <div class="toolbar-section palette" role="group" aria-label="Color Palette">
+        <button type="button" class="swatch swatch-light" data-color="#FFFFFF" style="--swatch-color: #FFFFFF;" aria-label="White" title="White"></button>
+        <button type="button" class="swatch" data-color="#FFFF00" style="--swatch-color: #FFFF00;" aria-label="Yellow" title="Yellow"></button>
+        <button type="button" class="swatch" data-color="#FF8800" style="--swatch-color: #FF8800;" aria-label="Orange" title="Orange"></button>
+        <button type="button" class="swatch" data-color="#FF0000" style="--swatch-color: #FF0000;" aria-label="Red" title="Red"></button>
+        <button type="button" class="swatch" data-color="#FF69B4" style="--swatch-color: #FF69B4;" aria-label="Pink" title="Pink"></button>
+        <button type="button" class="swatch" data-color="#FDB5AB" style="--swatch-color: #FDB5AB;" aria-label="Peach" title="Peach"></button>
+        <button type="button" class="swatch" data-color="#8B00FF" style="--swatch-color: #8B00FF;" aria-label="Purple" title="Purple"></button>
+        <button type="button" class="swatch" data-color="#0000FF" style="--swatch-color: #0000FF;" aria-label="Blue" title="Blue"></button>
+        <button type="button" class="swatch" data-color="#00BFFF" style="--swatch-color: #00BFFF;" aria-label="Cyan" title="Cyan"></button>
+        <button type="button" class="swatch" data-color="#00AA00" style="--swatch-color: #00AA00;" aria-label="Green" title="Green"></button>
+        <button type="button" class="swatch" data-color="#7CFC00" style="--swatch-color: #7CFC00;" aria-label="Lime" title="Lime"></button>
+        <button type="button" class="swatch" data-color="#8B4513" style="--swatch-color: #8B4513;" aria-label="Brown" title="Brown"></button>
+        <button type="button" class="swatch active" data-color="#000000" style="--swatch-color: #000000;" aria-label="Black" title="Black"></button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Brush Size Control -->
+      <div class="toolbar-section brush-control" role="group" aria-label="Brush Size">
+        <label for="brush-size" class="toolbar-label">Size</label>
+        <input type="range" id="brush-size" min="4" max="80" value="20" step="1" aria-label="Brush Size">
+        <span id="brush-size-display" class="size-badge">20px</span>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <!-- Action Buttons -->
+      <div class="toolbar-section actions" role="group" aria-label="Actions">
+        <button type="button" id="btn-new" class="btn btn-action btn-new" aria-label="New Drawing" title="New Drawing">
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>New</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery Sidebar Panel -->
+  <div id="gallery-backdrop" class="gallery-backdrop" hidden aria-hidden="true"></div>
+  <aside id="gallery-panel" class="gallery-panel" aria-label="Saved Drawings Gallery" aria-hidden="true">
+    <div class="gallery-header">
+      <h2 class="gallery-title">Saved Drawings</h2>
+      <button type="button" id="btn-gallery-close" class="btn-gallery-close" aria-label="Close Gallery" title="Close Gallery">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="gallery-content">
+      <div id="gallery-grid" class="gallery-grid"></div>
+      <div id="gallery-empty" class="gallery-empty" hidden>
+        <p class="gallery-empty-title">No saved drawings yet</p>
+        <p class="gallery-empty-sub">Draw something and click <strong>New</strong> to automatically save your artwork to the gallery.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Confirmation Modal for New Picture -->
+  <div id="modal-new-drawing" class="modal-backdrop" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+    <div class="modal-card">
+      <h2 id="modal-title" class="modal-title">New Drawing</h2>
+      <p id="modal-desc" class="modal-desc">Start a new drawing? Current drawing will be saved.</p>
+      <div class="modal-actions">
+        <button type="button" id="btn-modal-cancel" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btn-modal-confirm" class="btn btn-primary">New Drawing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor Libraries -->
+  <script src="vendor/spectral.js"></script>
+
+  <!-- Functional Core Modules -->
+  <script src="js/color-bridge.js"></script>
+  <script src="js/geometry.js"></script>
+
+  <!-- Imperative Shell Modules -->
+  <script src="js/drawing-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -44,7 +44,6 @@
 
   function renderCategoryGrid() {
     categoryGrid.innerHTML = '';
-    var ids = getAllCategoryIds();
 
     for (var i = 0; i < CATEGORIES.length; i++) {
       var cat = CATEGORIES[i];

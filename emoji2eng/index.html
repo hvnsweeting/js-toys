@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Emoji2Eng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+  </head>
+  <body>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <main class="screen-container" id="app">
+
+      <!-- Category Select Screen -->
+      <section id="screen-categories" class="screen" aria-label="Category Selection">
+        <header>
+          <h1 class="title"><span class="star">★</span> EMOJI2ENG <span class="star">★</span></h1>
+          <div class="subtitle-box">
+            <span class="subtitle">"GUESS THE MISSING LETTER" <span class="blink-cursor">_</span></span>
+          </div>
+        </header>
+
+        <nav class="category-grid" id="category-grid" aria-label="Emoji Categories">
+          <!-- Populated by app.js -->
+        </nav>
+
+        <footer>
+          <a href="../index.html" class="back-link">← BACK TO ARCADE</a>
+        </footer>
+      </section>
+
+      <!-- Playing Screen -->
+      <section id="screen-playing" class="screen hidden" aria-label="Game">
+        <div class="game-header">
+          <button id="btn-back" class="header-btn" type="button" aria-label="Back to categories">◀</button>
+          <div id="progress" class="progress-text" aria-live="polite">1 / 10</div>
+          <div id="score-display" class="score-text" aria-live="polite">★ 0</div>
+        </div>
+
+        <div class="emoji-display" id="emoji-display" aria-live="polite">🍑</div>
+        <div class="masked-word" id="masked-word" aria-live="polite">[_]each</div>
+
+        <div class="answer-grid" id="answer-grid" aria-label="Answer choices">
+          <!-- 4 buttons populated by app.js -->
+        </div>
+
+        <div id="feedback" class="feedback hidden" aria-live="assertive"></div>
+      </section>
+
+      <!-- Round Complete Screen -->
+      <section id="screen-complete" class="screen hidden" aria-label="Round Complete">
+        <div class="complete-emoji" aria-hidden="true">🏆</div>
+        <h2 class="complete-title">ROUND COMPLETE!</h2>
+        <div class="complete-score" id="final-score" aria-live="polite">8 / 10</div>
+        <div class="complete-stars" id="final-stars" aria-hidden="true"></div>
+        <button id="btn-play-again" class="play-again-btn" type="button">PLAY AGAIN ▶</button>
+      </section>
+
+    </main>
+
+    <script src="./js/emoji-data.js"></script>
+    <script src="./js/game-logic.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>

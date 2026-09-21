@@ -293,6 +293,26 @@
         box-shadow: 0 0 8px var(--accent-magenta);
       }
 
+      .card-emoji:hover {
+        border-color: #a855f7;
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(168, 85, 247, 0.5);
+      }
+      .card-emoji:hover .card-title {
+        color: #a855f7;
+      }
+      .card-emoji:hover .card-btn {
+        background: #a855f7;
+        color: #fff;
+        border-color: #fff;
+        box-shadow: 0 0 8px #a855f7;
+      }
+
       /* Hover & Press Animations */
       .card:hover {
         transform: translateY(-6px) scale(1.02);
@@ -473,6 +493,15 @@
           <div class="card-icon" role="img" aria-label="Palette">🎨</div>
           <h2 class="card-title">MyDraw</h2>
           <p class="card-desc">Paint with real color mixing</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 4. Emoji2Eng -->
+        <a class="card card-emoji" href="./emoji2eng/index.html">
+          <span class="card-tag">GAME 04</span>
+          <div class="card-icon" role="img" aria-label="Emoji">🔤</div>
+          <h2 class="card-title">Emoji2Eng</h2>
+          <p class="card-desc">Guess the missing letter!</p>
           <div class="card-btn">PLAY ▶</div>
         </a>
       </nav>

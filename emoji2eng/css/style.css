@@ -55,6 +55,12 @@ body {
   color: #6b7280;
 }
 
+.title-controls {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
 .toggle-btn {
   display: inline-flex;
   align-items: center;

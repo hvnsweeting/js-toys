@@ -26,11 +26,13 @@
   var btnPlayAgain = document.getElementById('btn-play-again');
   var darkModeToggle = document.getElementById('dark-mode-toggle');
   var darkModeBtn = document.getElementById('dark-mode-btn');
+  var soundBtn = document.getElementById('sound-toggle-btn');
 
   // Game state (mutable shell state)
   var roundState = null;
   var currentPuzzle = null;
   var isAnswering = false;
+  var soundEnabled = true;
 
   // ---- Screen Management ----
 
@@ -188,6 +190,9 @@
     // Reveal the full word with the missing letter in green
     revealCorrectLetter(currentPuzzle);
 
+    // Read the word aloud
+    speakWord(currentPuzzle.name);
+
     // Show feedback
     if (result.correct) {
       showFeedback('Correct! ✔', true);
@@ -252,6 +257,21 @@
     }
   }
 
+  // ---- Text-to-Speech ----
+
+  /** Speak a word using Web Speech API (side effect, shell only) */
+  function speakWord(word) {
+    if (!soundEnabled) return;
+    var synth = window.speechSynthesis;
+    if (!synth || typeof synth.speak !== 'function') return;
+    synth.cancel();
+    var utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    synth.speak(utterance);
+  }
+
   // ---- Event Wiring ----
 
   btnBack.addEventListener('click', function () {
@@ -265,6 +285,15 @@
   if (darkModeToggle) {
     darkModeToggle.addEventListener('change', applyTheme);
     applyTheme();
+  }
+
+  if (soundBtn) {
+    soundBtn.addEventListener('click', function () {
+      soundEnabled = !soundEnabled;
+      soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+      soundBtn.setAttribute('aria-label', soundEnabled ? 'Sound on' : 'Sound off');
+      soundBtn.setAttribute('aria-pressed', String(soundEnabled));
+    });
   }
 
   // ---- Init ----

@@ -6,8 +6,8 @@
 (function () {
   'use strict';
 
-  var EMOJIS_PER_ROUND = 10;
-  var FEEDBACK_DELAY_MS = 800;
+  var EMOJIS_PER_ROUND = 18;
+  var FEEDBACK_DELAY_MS = 1000;
   var ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
   // DOM references
@@ -23,8 +23,9 @@
   var answerGridEl = document.getElementById('answer-grid');
   var feedbackEl = document.getElementById('feedback');
   var finalScoreEl = document.getElementById('final-score');
-  var finalStarsEl = document.getElementById('final-stars');
   var btnPlayAgain = document.getElementById('btn-play-again');
+  var darkModeToggle = document.getElementById('dark-mode-toggle');
+  var darkModeBtn = document.getElementById('dark-mode-btn');
 
   // Game state (mutable shell state)
   var roundState = null;
@@ -67,7 +68,7 @@
     randomCard.setAttribute('aria-label', 'Random mix');
     randomCard.innerHTML =
       '<div class="cat-card-icon">🎲</div>' +
-      '<div class="cat-card-name">RANDOM MIX</div>';
+      '<div class="cat-card-name">Random Mix</div>';
     randomCard.addEventListener('click', handleCategoryClick);
     categoryGrid.appendChild(randomCard);
   }
@@ -89,7 +90,6 @@
       emojis = shuffleArray(pool).slice(0, EMOJIS_PER_ROUND);
     }
 
-    // Clamp if category has fewer emoji than requested
     if (emojis.length > EMOJIS_PER_ROUND) {
       emojis = emojis.slice(0, EMOJIS_PER_ROUND);
     }
@@ -114,9 +114,11 @@
     progressEl.textContent = (roundState.currentIndex + 1) + ' / ' + roundState.total;
     scoreDisplayEl.textContent = '★ ' + roundState.score;
 
-    // Display emoji and masked word
+    // Display emoji
     emojiDisplayEl.textContent = currentPuzzle.char;
-    maskedWordEl.textContent = currentPuzzle.maskedName;
+
+    // Render masked word with red underscore
+    renderMaskedWord(currentPuzzle);
 
     // Generate answer options
     var distractors = generateDistractors(currentPuzzle.correctLetter, ALPHABET);
@@ -124,6 +126,32 @@
 
     renderAnswerButtons(options);
     hideFeedback();
+  }
+
+  /** Render the word with a red underscore at the blank position */
+  function renderMaskedWord(puzzle) {
+    maskedWordEl.innerHTML = '';
+    var name = puzzle.name;
+    for (var i = 0; i < name.length; i++) {
+      if (i === puzzle.blankIndex) {
+        var blankSpan = document.createElement('span');
+        blankSpan.className = 'blank';
+        blankSpan.textContent = '_';
+        blankSpan.dataset.index = String(i);
+        maskedWordEl.appendChild(blankSpan);
+      } else {
+        maskedWordEl.appendChild(document.createTextNode(name[i]));
+      }
+    }
+  }
+
+  /** Reveal the correct letter in green at the blank position */
+  function revealCorrectLetter(puzzle) {
+    var blankSpan = maskedWordEl.querySelector('.blank');
+    if (blankSpan) {
+      blankSpan.className = 'revealed';
+      blankSpan.textContent = puzzle.correctLetter;
+    }
   }
 
   function renderAnswerButtons(options) {
@@ -157,11 +185,14 @@
       }
     }
 
+    // Reveal the full word with the missing letter in green
+    revealCorrectLetter(currentPuzzle);
+
     // Show feedback
     if (result.correct) {
-      showFeedback('CORRECT! ✔', true);
+      showFeedback('Correct! ✔', true);
     } else {
-      showFeedback('WRONG! It was "' + currentPuzzle.correctLetter + '"', false);
+      showFeedback('Wrong! It was "' + currentPuzzle.correctLetter + '"', false);
     }
 
     // Advance round state
@@ -178,15 +209,6 @@
   function showRoundComplete() {
     showScreen(screenComplete);
     finalScoreEl.textContent = roundState.score + ' / ' + roundState.total;
-
-    // Star rating based on score percentage
-    var pct = roundState.total > 0 ? roundState.score / roundState.total : 0;
-    var starCount = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
-    var stars = '';
-    for (var i = 0; i < 3; i++) {
-      stars += i < starCount ? '⭐' : '☆';
-    }
-    finalStarsEl.textContent = stars;
   }
 
   // ---- UI Helpers ----
@@ -219,6 +241,17 @@
     return copy;
   }
 
+  // ---- Dark Mode ----
+
+  function applyTheme() {
+    var isDark = darkModeToggle.checked;
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+    if (darkModeBtn) {
+      darkModeBtn.textContent = isDark ? '☀️' : '🌙';
+      darkModeBtn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+  }
+
   // ---- Event Wiring ----
 
   btnBack.addEventListener('click', function () {
@@ -228,6 +261,11 @@
   btnPlayAgain.addEventListener('click', function () {
     showScreen(screenCategories);
   });
+
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('change', applyTheme);
+    applyTheme();
+  }
 
   // ---- Init ----
   renderCategoryGrid();

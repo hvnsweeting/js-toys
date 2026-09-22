@@ -14,7 +14,7 @@
     var name = emoji.name;
     var clamped = Math.max(0, Math.min(blankIndex, name.length - 1));
     var correctLetter = name[clamped];
-    var maskedName = name.slice(0, clamped) + '[_]' + name.slice(clamped + 1);
+    var maskedName = name.slice(0, clamped) + '_' + name.slice(clamped + 1);
 
     return {
       char: emoji.char,

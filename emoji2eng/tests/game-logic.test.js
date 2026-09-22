@@ -3,7 +3,7 @@ describe('game-logic', function () {
   describe('createPuzzle', function () {
     it('masks the first letter correctly', function () {
       var puzzle = createPuzzle({ char: '🍑', name: 'peach' }, 0);
-      assertEqual(puzzle.maskedName, '[_]each');
+      assertEqual(puzzle.maskedName, '_each');
       assertEqual(puzzle.correctLetter, 'p');
       assertEqual(puzzle.blankIndex, 0);
       assertEqual(puzzle.char, '🍑');
@@ -12,19 +12,19 @@ describe('game-logic', function () {
 
     it('masks the last letter correctly', function () {
       var puzzle = createPuzzle({ char: '🍑', name: 'peach' }, 4);
-      assertEqual(puzzle.maskedName, 'peac[_]');
+      assertEqual(puzzle.maskedName, 'peac_');
       assertEqual(puzzle.correctLetter, 'h');
     });
 
     it('masks a middle letter correctly', function () {
       var puzzle = createPuzzle({ char: '🍑', name: 'peach' }, 2);
-      assertEqual(puzzle.maskedName, 'pe[_]ch');
+      assertEqual(puzzle.maskedName, 'pe_ch');
       assertEqual(puzzle.correctLetter, 'a');
     });
 
     it('handles single-character blank in long word', function () {
       var puzzle = createPuzzle({ char: '🦋', name: 'butterfly' }, 3);
-      assertEqual(puzzle.maskedName, 'but[_]erfly');
+      assertEqual(puzzle.maskedName, 'but_erfly');
       assertEqual(puzzle.correctLetter, 't');
     });
 
@@ -46,7 +46,7 @@ describe('game-logic', function () {
     it('handles names with spaces', function () {
       var puzzle = createPuzzle({ char: '🌭', name: 'hot dog' }, 0);
       assertEqual(puzzle.correctLetter, 'h');
-      assertEqual(puzzle.maskedName, '[_]ot dog');
+      assertEqual(puzzle.maskedName, '_ot dog');
     });
   });
 

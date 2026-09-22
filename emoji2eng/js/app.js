@@ -264,11 +264,12 @@
     if (!soundEnabled) return;
     var synth = window.speechSynthesis;
     if (!synth || typeof synth.speak !== 'function') return;
-    synth.cancel();
     var utterance = new SpeechSynthesisUtterance(word);
     utterance.lang = 'en-US';
     utterance.rate = 0.9;
     utterance.pitch = 1.1;
+    if (synth.cancel) synth.cancel();
+    synth.resume();
     synth.speak(utterance);
   }
 

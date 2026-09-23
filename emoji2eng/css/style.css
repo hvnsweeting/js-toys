@@ -35,18 +35,30 @@ body {
   min-height: 100vh;
 }
 
-/* ============ TITLE ROW ============ */
+/* ============ HEADER ============ */
 
-.title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.25rem;
+.game-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  flex: 1;
 }
 
-.title-row h1 {
-  margin: 0;
-  font-size: 2rem;
+.back-link-btn {
+  font-size: 1rem;
+  padding: 0.6rem 0.9rem;
+  border: 2px solid #0f172a;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #1f2937;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.back-link-btn:hover {
+  background: #dbeafe;
+  border-color: #3b82f6;
 }
 
 .subtitle {
@@ -133,23 +145,6 @@ body {
   color: #6d28d9;
 }
 
-/* ============ FOOTER ============ */
-
-footer {
-  text-align: center;
-  margin-top: 0.5rem;
-}
-
-.back-link {
-  font-size: 0.9rem;
-  color: #6b7280;
-  text-decoration: none;
-}
-
-.back-link:hover {
-  color: #3b82f6;
-  text-decoration: underline;
-}
 
 /* ============ PLAYING SCREEN ============ */
 
@@ -367,7 +362,8 @@ button:focus-visible,
 }
 
 :root[data-theme="dark"] button,
-:root[data-theme="dark"] .toggle-btn {
+:root[data-theme="dark"] .toggle-btn,
+:root[data-theme="dark"] .back-link-btn {
   background: #1e293b;
   color: #e2e8f0;
   border-color: #94a3b8;
@@ -398,14 +394,6 @@ button:focus-visible,
 
 :root[data-theme="dark"] .cat-card--random .cat-card-name {
   color: #c4b5fd;
-}
-
-:root[data-theme="dark"] .back-link {
-  color: #94a3b8;
-}
-
-:root[data-theme="dark"] .back-link:hover {
-  color: #60a5fa;
 }
 
 :root[data-theme="dark"] .progress-text {

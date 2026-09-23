@@ -98,6 +98,25 @@ describe('game-logic', function () {
         assertTrue(vowels.indexOf(result[i]) === -1, 'distractor "' + result[i] + '" should be a consonant');
       }
     });
+
+    it('without shuffleFn always returns same first 3 matches', function () {
+      var allLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+      var result = generateDistractors('n', allLetters);
+      assertEqual(result[0], 'b');
+      assertEqual(result[1], 'c');
+      assertEqual(result[2], 'd');
+    });
+
+    it('with shuffleFn returns different distractors than unshuffled', function () {
+      var allLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+      var reverseShuffle = function (arr) { return arr.slice().reverse(); };
+      var withoutShuffle = generateDistractors('n', allLetters);
+      var withShuffle = generateDistractors('n', allLetters, reverseShuffle);
+      var same = withoutShuffle[0] === withShuffle[0]
+        && withoutShuffle[1] === withShuffle[1]
+        && withoutShuffle[2] === withShuffle[2];
+      assertTrue(!same, 'shuffleFn should produce different distractors than unshuffled');
+    });
   });
 
   describe('createAnswerOptions', function () {

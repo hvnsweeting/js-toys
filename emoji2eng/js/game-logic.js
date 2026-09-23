@@ -51,9 +51,10 @@
   /**
    * Generate 3 distractor letters from candidates, excluding the correct letter.
    * Picks from the same class: vowels if correct is a vowel, consonants otherwise.
+   * shuffleFn randomizes the filtered pool before picking (injected for testability).
    * Returns array of 3 unique wrong letters.
    */
-  function generateDistractors(correctLetter, candidateLetters) {
+  function generateDistractors(correctLetter, candidateLetters, shuffleFn) {
     var lower = correctLetter.toLowerCase();
     var vowels = 'aeiou';
     var correctIsVowel = vowels.indexOf(lower) !== -1;
@@ -68,6 +69,10 @@
         seen[c] = true;
         filtered.push(c);
       }
+    }
+
+    if (shuffleFn) {
+      filtered = shuffleFn(filtered);
     }
 
     return filtered.slice(0, 3);

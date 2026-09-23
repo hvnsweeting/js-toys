@@ -123,7 +123,7 @@
     renderMaskedWord(currentPuzzle);
 
     // Generate answer options
-    var distractors = generateDistractors(currentPuzzle.correctLetter, ALPHABET);
+    var distractors = generateDistractors(currentPuzzle.correctLetter, ALPHABET, shuffleArray);
     var options = createAnswerOptions(currentPuzzle.correctLetter, distractors, shuffleArray);
 
     renderAnswerButtons(options);

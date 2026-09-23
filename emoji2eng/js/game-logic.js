@@ -50,17 +50,21 @@
 
   /**
    * Generate 3 distractor letters from candidates, excluding the correct letter.
+   * Picks from the same class: vowels if correct is a vowel, consonants otherwise.
    * Returns array of 3 unique wrong letters.
    */
   function generateDistractors(correctLetter, candidateLetters) {
     var lower = correctLetter.toLowerCase();
+    var vowels = 'aeiou';
+    var correctIsVowel = vowels.indexOf(lower) !== -1;
 
-    // Filter out correct letter and deduplicate
     var filtered = [];
     var seen = {};
     for (var i = 0; i < candidateLetters.length; i++) {
       var c = candidateLetters[i].toLowerCase();
-      if (c !== lower && !seen[c]) {
+      var cIsVowel = vowels.indexOf(c) !== -1;
+      var sameClass = correctIsVowel === cIsVowel;
+      if (c !== lower && !seen[c] && sameClass) {
         seen[c] = true;
         filtered.push(c);
       }

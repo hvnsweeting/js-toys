@@ -80,6 +80,24 @@ describe('game-logic', function () {
         assertTrue(result[i] !== 'x', 'should not contain correct letter');
       }
     });
+
+    it('returns only vowels when correct letter is a vowel', function () {
+      var vowels = ['a','e','i','o','u'];
+      var consonants = ['b','c','d','f','g','h'];
+      var result = generateDistractors('a', vowels.concat(consonants));
+      for (var i = 0; i < result.length; i++) {
+        assertTrue(vowels.indexOf(result[i]) !== -1, 'distractor "' + result[i] + '" should be a vowel');
+      }
+    });
+
+    it('returns only consonants when correct letter is a consonant', function () {
+      var vowels = ['a','e','i','o','u'];
+      var consonants = ['b','c','d','f','g','h'];
+      var result = generateDistractors('b', vowels.concat(consonants));
+      for (var i = 0; i < result.length; i++) {
+        assertTrue(vowels.indexOf(result[i]) === -1, 'distractor "' + result[i] + '" should be a consonant');
+      }
+    });
   });
 
   describe('createAnswerOptions', function () {

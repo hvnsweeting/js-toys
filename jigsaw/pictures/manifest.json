@@ -1,0 +1,202 @@
+[
+  {
+    "id": "great-wave",
+    "title": "The Great Wave",
+    "artist": "Katsushika Hokusai",
+    "year": "c. 1831",
+    "file": "pictures/great-wave.jpg",
+    "thumb": "pictures/great-wave-thumb.jpg",
+    "width": 1600,
+    "height": 1076
+  },
+  {
+    "id": "starry-night",
+    "title": "The Starry Night",
+    "artist": "Vincent van Gogh",
+    "year": "1889",
+    "file": "pictures/starry-night.jpg",
+    "thumb": "pictures/starry-night-thumb.jpg",
+    "width": 1600,
+    "height": 1267
+  },
+  {
+    "id": "sunflowers",
+    "title": "Sunflowers",
+    "artist": "Vincent van Gogh",
+    "year": "1888",
+    "file": "pictures/sunflowers.jpg",
+    "thumb": "pictures/sunflowers-thumb.jpg",
+    "width": 1259,
+    "height": 1600
+  },
+  {
+    "id": "parasol",
+    "title": "Woman with a Parasol",
+    "artist": "Claude Monet",
+    "year": "1875",
+    "file": "pictures/parasol.jpg",
+    "thumb": "pictures/parasol-thumb.jpg",
+    "width": 1288,
+    "height": 1600
+  },
+  {
+    "id": "irises",
+    "title": "Irises",
+    "artist": "Vincent van Gogh",
+    "year": "1889",
+    "file": "pictures/irises.jpg",
+    "thumb": "pictures/irises-thumb.jpg",
+    "width": 1600,
+    "height": 1236
+  },
+  {
+    "id": "hunters",
+    "title": "Hunters in the Snow",
+    "artist": "Pieter Bruegel the Elder",
+    "year": "1565",
+    "file": "pictures/hunters.jpg",
+    "thumb": "pictures/hunters-thumb.jpg",
+    "width": 1600,
+    "height": 1138
+  },
+  {
+    "id": "blue-horses",
+    "title": "The Large Blue Horses",
+    "artist": "Franz Marc",
+    "year": "1911",
+    "file": "pictures/blue-horses.jpg",
+    "thumb": "pictures/blue-horses-thumb.jpg",
+    "width": 1600,
+    "height": 915
+  },
+  {
+    "id": "plum-garden",
+    "title": "Plum Garden at Kameido",
+    "artist": "Utagawa Hiroshige",
+    "year": "1857",
+    "file": "pictures/plum-garden.jpg",
+    "thumb": "pictures/plum-garden-thumb.jpg",
+    "width": 1089,
+    "height": 1600
+  },
+  {
+    "id": "grande-jatte",
+    "title": "A Sunday on La Grande Jatte",
+    "artist": "Georges Seurat",
+    "year": "1884",
+    "file": "pictures/grande-jatte.jpg",
+    "thumb": "pictures/grande-jatte-thumb.jpg",
+    "width": 1600,
+    "height": 1065
+  },
+  {
+    "id": "the-kiss",
+    "title": "The Kiss",
+    "artist": "Gustav Klimt",
+    "year": "1908",
+    "file": "pictures/the-kiss.jpg",
+    "thumb": "pictures/the-kiss-thumb.jpg",
+    "width": 1594,
+    "height": 1600
+  },
+  {
+    "id": "cafe-terrace",
+    "title": "Caf\u00e9 Terrace at Night",
+    "artist": "Vincent van Gogh",
+    "year": "1888",
+    "file": "pictures/cafe-terrace.jpg",
+    "thumb": "pictures/cafe-terrace-thumb.jpg",
+    "width": 1219,
+    "height": 1600
+  },
+  {
+    "id": "water-lilies",
+    "title": "Bridge over a Pond of Water Lilies",
+    "artist": "Claude Monet",
+    "year": "1899",
+    "file": "pictures/water-lilies.jpg",
+    "thumb": "pictures/water-lilies-thumb.jpg",
+    "width": 1275,
+    "height": 1600
+  },
+  {
+    "id": "red-fuji",
+    "title": "Fine Wind, Clear Morning (Red Fuji)",
+    "artist": "Katsushika Hokusai",
+    "year": "c. 1831",
+    "file": "pictures/red-fuji.jpg",
+    "thumb": "pictures/red-fuji-thumb.jpg",
+    "width": 1600,
+    "height": 1080
+  },
+  {
+    "id": "gris-picasso",
+    "title": "Portrait of Pablo Picasso",
+    "artist": "Juan Gris",
+    "year": "1912",
+    "file": "pictures/gris-picasso.jpg",
+    "thumb": "pictures/gris-picasso-thumb.jpg",
+    "width": 1258,
+    "height": 1600
+  },
+  {
+    "id": "tower-of-babel",
+    "title": "The Tower of Babel",
+    "artist": "Pieter Bruegel the Elder",
+    "year": "1563",
+    "file": "pictures/tower-of-babel.jpg",
+    "thumb": "pictures/tower-of-babel-thumb.jpg",
+    "width": 1600,
+    "height": 1171
+  },
+  {
+    "id": "sudden-shower",
+    "title": "Sudden Shower over Shin-\u014chashi Bridge",
+    "artist": "Utagawa Hiroshige",
+    "year": "1857",
+    "file": "pictures/sudden-shower.jpg",
+    "thumb": "pictures/sudden-shower-thumb.jpg",
+    "width": 1056,
+    "height": 1600
+  },
+  {
+    "id": "temeraire",
+    "title": "The Fighting Temeraire",
+    "artist": "J. M. W. Turner",
+    "year": "1839",
+    "file": "pictures/temeraire.jpg",
+    "thumb": "pictures/temeraire-thumb.jpg",
+    "width": 1600,
+    "height": 1188
+  },
+  {
+    "id": "composition-vii",
+    "title": "Composition VII",
+    "artist": "Wassily Kandinsky",
+    "year": "1913",
+    "file": "pictures/composition-vii.jpg",
+    "thumb": "pictures/composition-vii-thumb.jpg",
+    "width": 1600,
+    "height": 1063
+  },
+  {
+    "id": "van-gogh-self-portrait",
+    "title": "Self-Portrait",
+    "artist": "Vincent van Gogh",
+    "year": "1889",
+    "file": "pictures/van-gogh-self-portrait.jpg",
+    "thumb": "pictures/van-gogh-self-portrait-thumb.jpg",
+    "width": 1316,
+    "height": 1600
+  },
+  {
+    "id": "sierra-nevada",
+    "title": "Among the Sierra Nevada, California",
+    "artist": "Albert Bierstadt",
+    "year": "1868",
+    "file": "pictures/sierra-nevada.jpg",
+    "thumb": "pictures/sierra-nevada-thumb.jpg",
+    "width": 1600,
+    "height": 957
+  }
+]

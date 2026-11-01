@@ -1,0 +1,5 @@
+node_modules/
+shots/
+.scratch/
+.codex-*.md
+__pycache__/

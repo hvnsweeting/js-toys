@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Jigsaw | Paintings to piece together</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="icon" href="icons/icon-192.png" />
+    <meta name="theme-color" content="#526f61" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Jigsaw" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section id="chooser" class="screen chooser">
+        <header class="chooser-header">
+          <a
+            id="arcade-link"
+            class="round-button"
+            href="../index.html"
+            aria-label="Back to Arcade"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 12H5m7-7-7 7 7 7" /></svg
+          ></a>
+          <div>
+            <small>THE ART TABLE</small>
+            <h1>
+              Jigsaw<svg
+                class="title-mark"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M12 2 14 10l8 2-8 2-2 8-2-8-8-2 8-2z" />
+              </svg>
+            </h1>
+            <p>Take your time. Find the pieces.</p>
+          </div>
+          <button id="chooser-music" class="tool music-button" aria-label="Mute music" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17V5l10-2v12M9 9l10-2M9 17c0 2-5 3-5 0s5-3 5 0Zm10-2c0 2-5 3-5 0s5-3 5 0Z"/><path class="music-slash" d="M3 3l18 18"/></svg><small>Music</small></button>
+        </header>
+        <p id="offline-ready" class="offline-ready hidden" aria-live="polite"></p>
+        <div id="continue-card" class="continue-card hidden">
+          <div>
+            <small>ON YOUR TABLE</small><strong id="continue-name"></strong
+            ><span id="continue-progress"></span>
+            <span id="continue-error" role="status"></span>
+          </div>
+          <button id="continue-button" class="primary">Continue</button
+          ><button id="discard-button" class="text-button">Start new</button>
+        </div>
+        <div class="chooser-count">
+          <span>Pieces</span>
+          <div class="count-control" role="group" aria-label="Piece count">
+            <button data-count="32">32 pieces</button
+            ><button data-count="64">64 pieces</button
+            ><button data-count="128">128 pieces</button>
+          </div>
+        </div>
+        <div class="section-title">
+          <h2>Choose a picture</h2>
+          <a href="pictures/CREDITS.md" target="_blank" rel="noopener"
+            >Picture credits</a
+          >
+        </div>
+        <div id="picture-grid" class="picture-grid"></div>
+        <p id="chooser-message" class="message" role="status"></p>
+        <input id="photo-input" type="file" accept="image/*" hidden />
+      </section>
+      <dialog id="replace-dialog" class="replace-dialog">
+        <p>Start a new puzzle? Your unfinished one will be replaced.</p>
+        <div><button id="replace-cancel" class="secondary">Cancel</button>
+          <button id="replace-start" class="primary">Start new</button></div>
+      </dialog>
+      <p id="save-notice" class="save-notice" role="status"></p>
+      <section id="crop-screen" class="screen crop-screen hidden">
+        <header class="plain-header">
+          <button
+            id="crop-back"
+            class="round-button"
+            aria-label="Back to pictures"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 12H5m7-7-7 7 7 7" />
+            </svg>
+          </button>
+          <div>
+            <small>MAKE IT YOURS</small>
+            <h2>Frame your photo</h2>
+          </div>
+          <button id="crop-music" class="tool music-button" aria-label="Mute music" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17V5l10-2v12M9 9l10-2M9 17c0 2-5 3-5 0s5-3 5 0Zm10-2c0 2-5 3-5 0s5-3 5 0Z"/><path class="music-slash" d="M3 3l18 18"/></svg><small>Music</small></button>
+        </header>
+        <div class="crop-area">
+          <canvas
+            id="crop-canvas"
+            aria-label="Move the photo to choose the puzzle area"
+          ></canvas>
+        </div>
+        <p class="crop-hint">
+          Drag to move the photo. Pinch or use the slider to zoom.
+        </p>
+        <label class="zoom-label"
+          >Zoom
+          <input
+            id="crop-zoom"
+            type="range"
+            min="1"
+            max="3"
+            step="0.01"
+            value="1"
+        /></label>
+        <div class="crop-footer">
+          <div class="count-control" role="group" aria-label="Piece count">
+            <button data-count="32">32 pieces</button
+            ><button data-count="64">64 pieces</button
+            ><button data-count="128">128 pieces</button>
+          </div>
+          <button id="crop-start" class="primary">Start puzzle</button>
+        </div>
+        <p class="privacy">Your photo stays on this device.</p>
+      </section>
+      <section id="play-screen" class="screen play-screen hidden">
+        <header class="play-header">
+          <button id="play-back" class="tool" aria-label="Back to pictures">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 12H5m7-7-7 7 7 7" />
+            </svg>
+            <small>Back</small>
+          </button>
+          <div class="play-status">
+            <strong id="progress">0 / 32</strong><span id="timer">00:00</span>
+          </div>
+          <div id="play-title" class="play-title"><span class="heading-name"></span><span class="heading-artist"></span></div>
+          <button
+            id="sound-button"
+            class="tool"
+            aria-label="Sound on"
+            aria-pressed="true"
+          >
+            <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 9v6h4l5 4V5L8 9H4Zm12-2a7 7 0 0 1 0 10m2-13a11 11 0 0 1 0 16"
+              />
+            </svg>
+            <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4Zm4 0 5 10m4-10 5 6m0-6-5 6" />
+            </svg>
+            <small>Sound</small>
+          </button>
+          <button id="play-music" class="tool music-button" aria-label="Mute music" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17V5l10-2v12M9 9l10-2M9 17c0 2-5 3-5 0s5-3 5 0Zm10-2c0 2-5 3-5 0s5-3 5 0Z"/><path class="music-slash" d="M3 3l18 18"/></svg><small>Music</small></button>
+        </header>
+        <div id="stage">
+          <canvas id="table" aria-label="Jigsaw puzzle table"></canvas>
+          <div id="peek-overlay" class="peek-overlay hidden">
+            <img id="peek-image" alt="Puzzle picture" />
+          </div>
+          <div id="done-card" class="done-card hidden">
+            <small>THE LAST PIECE</small>
+            <h3 id="done-title"><span class="heading-name"></span><span class="heading-artist"></span></h3>
+            <h2>Beautifully done!</h2>
+            <p id="done-time"></p>
+            <p id="best-time"></p>
+            <div>
+              <button id="again-button" class="primary">Play again</button>
+              <button id="done-new" class="secondary">New puzzle</button>
+            </div>
+          </div>
+        </div>
+        <nav class="toolbar" aria-label="Puzzle tools">
+          <button id="edges-button" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 4h18v16H3z" /></svg
+            ><small>Edges</small></button
+          ><button id="guide-button" class="tool" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 4h18v16H3zM12 4v16M3 12h18" />
+              <path d="M3 4h9v8H3z" fill="currentColor" opacity=".25" /></svg
+            ><small>Guide</small></button
+          ><button id="peek-button" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12Z" />
+              <circle cx="12" cy="12" r="3" /></svg
+            ><small>Peek</small></button
+          ><button id="zoom-in" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10" cy="10" r="7" />
+              <path d="M10 6v8M6 10h8m1 5 6 6" /></svg
+            ><small>Zoom in</small></button
+          ><button id="zoom-out" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10" cy="10" r="7" />
+              <path d="M6 10h8m1 5 6 6" /></svg
+            ><small>Zoom out</small></button
+          ><button id="fit-button" class="tool">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8h8v8H8z" /></svg
+            ><small>Fit</small></button
+          ><button id="menu-button" class="tool" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="5" cy="12" r="1" fill="currentColor" />
+              <circle cx="12" cy="12" r="1" fill="currentColor" />
+              <circle cx="19" cy="12" r="1" fill="currentColor" /></svg
+            ><small>Menu</small>
+          </button>
+        </nav>
+        <div id="menu" class="menu hidden">
+          <button id="shuffle-button">Shuffle loose pieces</button
+          ><button id="new-button">New puzzle</button>
+        </div>
+        <p id="play-message" class="play-message hidden" role="status"></p>
+      </section>
+    </main>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

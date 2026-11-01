@@ -1,0 +1,137 @@
+import { MUSIC_TEMPO, STEPS_PER_BAR, PHRASE_BARS, scoreEvents } from './musicScore.js';
+
+const LOOK_AHEAD = 0.22;
+const STEP_SECONDS = 60 / MUSIC_TEMPO / 4;
+const LEVELS = { piano: 0.16, pad: 0.055, bass: 0.14, box: 0.11 };
+
+export function createMusic(context, destination = context.destination, render = false) {
+  const output = context.createGain();
+  output.gain.value = render ? 1 : 0;
+  const tone = context.createBiquadFilter();
+  tone.type = 'lowpass';
+  tone.frequency.value = 3400;
+  tone.Q.value = 0.5;
+  tone.connect(output).connect(destination);
+  const voices = new Set();
+  let timer = null;
+  let enabled = false;
+  let hidden = false;
+  let nextStep = 0;
+  let nextTime = context.currentTime + 0.06;
+  let seed = 17;
+
+  function renderEvent(event, at) {
+    const source = context.createOscillator();
+    const envelope = context.createGain();
+    const duration = event.duration;
+    const end = at + duration;
+    const attack = event.layer === 'pad' ? 0.24 : event.layer === 'piano' ? 0.012 : 0.008;
+    const release = event.layer === 'pad' ? 0.5 : 0.16;
+    const peak = LEVELS[event.layer] * event.accent;
+    source.type = event.layer === 'pad' ? 'sine' :
+      event.layer === 'box' ? 'sine' : 'triangle';
+    source.frequency.setValueAtTime(event.frequency, at);
+    envelope.gain.setValueAtTime(0, at);
+    envelope.gain.linearRampToValueAtTime(peak, at + attack);
+    envelope.gain.setValueAtTime(peak * (event.layer === 'pad' ? 0.7 : 0.35),
+      Math.max(at + attack, end - release));
+    envelope.gain.linearRampToValueAtTime(0, end);
+    source.connect(envelope).connect(tone);
+    source.onended = () => {
+      source.disconnect();
+      envelope.disconnect();
+      voices.delete(source);
+    };
+    voices.add(source);
+    source.start(at);
+    source.stop(end + 0.01);
+    if (event.layer === 'bass') {
+      // A quiet upper partial makes the pluck audible on small speakers.
+      const upper = { ...event, frequency: event.frequency * 2, accent: event.accent * 0.32 };
+      renderUpper(upper, at);
+      renderUpper({ ...event, frequency: event.frequency * 3,
+        accent: event.accent * 0.16 }, at);
+    }
+  }
+  function renderUpper(event, at) {
+    const source = context.createOscillator();
+    const gain = context.createGain();
+    source.type = 'sine';
+    source.frequency.value = event.frequency;
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(LEVELS.bass * event.accent, at + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + event.duration);
+    source.connect(gain).connect(tone);
+    source.onended = () => {
+      source.disconnect();
+      gain.disconnect();
+      voices.delete(source);
+    };
+    voices.add(source);
+    source.start(at);
+    source.stop(at + event.duration + 0.01);
+  }
+  function stopVoices() {
+    const now = context.currentTime;
+    for (const source of voices) {
+      try { source.stop(now + 0.01); } catch { /* It already ended. */ }
+    }
+  }
+  function schedule() {
+    if (!enabled || hidden || context.state !== 'running') return;
+    const now = context.currentTime;
+    if (nextTime < now) {
+      const skipped = Math.ceil((now + 0.04 - nextTime) / STEP_SECONDS);
+      nextStep += skipped;
+      nextTime += skipped * STEP_SECONDS;
+    }
+    while (nextTime < now + LOOK_AHEAD) {
+      const bar = Math.floor(nextStep / STEPS_PER_BAR) % PHRASE_BARS;
+      const step = nextStep % STEPS_PER_BAR;
+      for (const event of scoreEvents(bar, step, seed)) renderEvent(event, nextTime);
+      nextStep++;
+      nextTime += STEP_SECONDS;
+    }
+  }
+  function setEnabled(value) {
+    if (enabled === value) return;
+    enabled = value;
+    const now = context.currentTime;
+    output.gain.cancelScheduledValues(now);
+    output.gain.setValueAtTime(output.gain.value, now);
+    output.gain.linearRampToValueAtTime(value && !hidden ? 1 : 0, now + 0.12);
+    if (!value) {
+      clearInterval(timer);
+      timer = null;
+      stopVoices();
+      return;
+    }
+    nextTime = now + 0.06;
+    timer = setInterval(schedule, 50);
+    schedule();
+  }
+  function setHidden(value) {
+    hidden = value;
+    const now = context.currentTime;
+    output.gain.cancelScheduledValues(now);
+    output.gain.setValueAtTime(output.gain.value, now);
+    output.gain.linearRampToValueAtTime(value ? 0 : enabled ? 1 : 0, now + 2);
+    if (!value) {
+      nextTime = now + 0.06;
+      schedule();
+    }
+  }
+  function dip() {
+    const now = context.currentTime;
+    output.gain.cancelScheduledValues(now);
+    output.gain.setValueAtTime(output.gain.value, now);
+    output.gain.linearRampToValueAtTime(0.28, now + 0.08);
+    output.gain.linearRampToValueAtTime(enabled && !hidden ? 1 : 0, now + 1.4);
+  }
+  return { setEnabled, setHidden, dip, renderEvent,
+    set seed(value) { seed = value >>> 0; },
+    get seed() { return seed; },
+    get activeVoices() { return voices.size; },
+    get hidden() { return hidden; },
+    get enabled() { return enabled; } };
+}

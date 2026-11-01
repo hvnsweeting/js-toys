@@ -313,6 +313,26 @@
         box-shadow: 0 0 8px #a855f7;
       }
 
+      .card-tachyon:hover {
+        border-color: #ff9f1c;
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(255, 159, 28, 0.5);
+      }
+      .card-tachyon:hover .card-title {
+        color: #ff9f1c;
+      }
+      .card-tachyon:hover .card-btn {
+        background: #ff9f1c;
+        color: #000;
+        border-color: #fff;
+        box-shadow: 0 0 8px #ff9f1c;
+      }
+
       /* Hover & Press Animations */
       .card:hover {
         transform: translateY(-6px) scale(1.02);
@@ -502,6 +522,15 @@
           <div class="card-icon" role="img" aria-label="Emoji">💩</div>
           <h2 class="card-title">Emoji2Eng</h2>
           <p class="card-desc">Guess the missing letter!</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 5. Tachyon Cascade -->
+        <a class="card card-tachyon" href="./tachyon-aoc2507/index.html">
+          <span class="card-tag">GAME 05</span>
+          <div class="card-icon" role="img" aria-label="Crystal">💎</div>
+          <h2 class="card-title">Tachyon Cascade</h2>
+          <p class="card-desc">Split the beam, light the targets (Advent of Code 2025, day 7)</p>
           <div class="card-btn">PLAY ▶</div>
         </a>
       </nav>

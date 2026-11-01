@@ -1,0 +1,1327 @@
+:root {
+  color-scheme: dark;
+  --ink: #dff8ff;
+  --muted: #96b2c5;
+  --cyan: #65eaff;
+  --gold: #f4cf79;
+  --red: #ff6e82;
+  --glass: rgba(9,25,42,.86);
+  --topbar-height: calc(58px + env(safe-area-inset-top, 0px));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #060d1c;
+  color: var(--ink);
+  font-family: Trebuchet MS,Arial,sans-serif;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid rgba(123,204,236,.34);
+  border-radius: 9px;
+  background: linear-gradient(150deg,rgba(25,59,79,.9),rgba(10,26,42,.92));
+  padding: 10px 16px;
+  letter-spacing: .04em;
+  transition: background .2s,transform .2s,box-shadow .2s;
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+button:hover {
+  background: #1d526c;
+  box-shadow: 0 0 18px #1bbfe050;
+}
+
+button:active {
+  transform: scale(.97);
+}
+
+button:focus-visible {
+  outline: 2px solid #b7f5ff;
+  outline-offset: 3px;
+}
+
+.primary {
+  background: linear-gradient(135deg,#18a8c0,#165578);
+  border-color: #79edff;
+  box-shadow: 0 0 22px #14c7ed4a;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.primary:hover {
+  background: linear-gradient(135deg,#51dbeb,#227494);
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  /* Set from visualViewport in main.js: on iPhone Safari 100dvh can still extend under the browser
+     toolbar, which hid the lower half of the Fire button. */
+  height: var(--app-height, 100dvh);
+  overflow: hidden;
+  background: #060e20 url('./assets/bg-nebula.jpg') center/cover no-repeat;
+}
+
+#app:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 54% 42%,transparent 8%,#050b19bb 85%),linear-gradient(135deg,#072036a6,#100e29aa);
+  pointer-events: none;
+}
+
+#stage {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center,transparent 35%,#02060dcc 100%);
+}
+
+#topbar {
+  position: absolute;
+  z-index: 8;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--topbar-height);
+  padding: calc(7px + env(safe-area-inset-top, 0px))
+      max(14px, env(safe-area-inset-right, 0px)) 7px
+      max(14px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(#061522e8,#06152233);
+  border-bottom: 1px solid #79b9d329;
+}
+
+.brand {
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: .23em;
+  color: #c5f5ff;
+  text-shadow: 0 0 14px #56d8ff;
+}
+
+/* The title doubles as the menu button, so it needs a full tap target but no button chrome. */
+#brand-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 8px 0 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+
+#brand-button:hover,
+#brand-button:focus-visible {
+  color: #ffffff;
+  background: none;
+}
+
+.brand-caret {
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--cyan);
+}
+
+#app[data-screen="title"] #brand-button {
+  cursor: default;
+}
+
+#app[data-screen="title"] .brand-caret,
+#app[data-screen="game"] #top-status,
+#app[data-screen="result"] #top-status {
+  display: none;
+}
+
+.brand b {
+  color: var(--gold);
+}
+
+#top-status {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+#mute-button {
+  /* Pins the sound controls right even when #top-status is hidden during play. */
+  margin-left: auto;
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-button .speaker {
+  fill: currentColor;
+}
+
+#mute-button .sound-cross,
+#mute-button.muted .sound-waves {
+  display: none;
+}
+
+#mute-button.muted .sound-cross {
+  display: inline;
+}
+
+#mute-button.muted {
+  color: #ff9aa8;
+}
+
+/* Touch screens get full 44 px targets; a mouse is precise enough for the slimmer desktop size. */
+@media(any-pointer:coarse) {
+  .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+#audio-settings {
+  position: absolute;
+  z-index: 11;
+  top: calc(var(--topbar-height) + 4px);
+  right: max(18px, env(safe-area-inset-right, 0px));
+  width: 230px;
+  padding: 15px;
+  display: grid;
+  gap: 12px;
+  background: #0a2235f2;
+  border: 1px solid #72deef88;
+  border-radius: 12px;
+  box-shadow: 0 18px 45px #000b;
+}
+
+#audio-settings label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+#audio-settings input[type="range"] {
+  width: 130px;
+  height: 44px;
+  touch-action: manipulation;
+  accent-color: #65eaff;
+}
+
+#audio-settings input[type="checkbox"] {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  touch-action: manipulation;
+  accent-color: #65eaff;
+}
+
+.screen {
+  position: absolute;
+  z-index: 5;
+  inset: var(--topbar-height) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(16px,5vw,80px);
+  pointer-events: none;
+}
+
+.screen>* {
+  pointer-events: auto;
+}
+
+.hidden {
+  display: none!important;
+}
+
+.title-panel {
+  width: min(470px,100%);
+  padding: 35px;
+  background: linear-gradient(125deg,#071827ed,#102539d9);
+  border: 1px solid #72deef66;
+  border-radius: 20px;
+  box-shadow: 0 20px 90px #000a,0 0 45px #13a2bd2b;
+  backdrop-filter: blur(13px);
+}
+
+.eyebrow {
+  font-size: 11px;
+  color: #81dce8;
+  font-weight: 800;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+}
+
+.title-art {
+  display: block;
+  width: 100%;
+  max-height: 130px;
+  object-fit: contain;
+  object-position: left;
+  margin: 8px 0 -8px;
+}
+
+.title-art:not([hidden]) + h1 {
+  display: none;
+}
+
+.title-art[hidden] {
+  display: none;
+}
+
+.title-panel h1 {
+  font-size: clamp(34px,5vw,65px);
+  line-height: .96;
+  letter-spacing: .04em;
+  margin: 16px 0 20px;
+  text-shadow: 0 0 25px #3ef0ff80;
+}
+
+.title-panel h1 em {
+  display: block;
+  color: var(--gold);
+  font-style: normal;
+}
+
+.title-panel p,.dialog p {
+  color: #bdd1dc;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.menu-actions button {
+  min-width: 130px;
+}
+
+.attract-count {
+  margin-top: 26px;
+  color: #a7d7e6;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+}
+
+.attract-count span {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.attract-count i {
+  display: inline-block;
+  width: 1px;
+  height: 17px;
+  background: #4c8fa0;
+  margin: 0 15px;
+  vertical-align: middle;
+}
+
+.rush-best {
+  margin-top: 9px;
+  color: #e2c786;
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+
+.arcade-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 2px;
+  color: #8fe9f5;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.arcade-link:hover,
+.arcade-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.puzzle-source a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #8fe9f5;
+  touch-action: manipulation;
+}
+
+.selection-panel {
+  width: min(770px,100%);
+  max-height: calc(100vh - var(--topbar-height) - 32px);
+  max-height: calc(100dvh - var(--topbar-height) - 32px);
+  overflow: auto;
+  padding: 24px;
+  background: var(--glass);
+  border: 1px solid #64b9cf70;
+  border-radius: 18px;
+  box-shadow: 0 20px 70px #000a;
+}
+
+.screen-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.screen h2,.hud-title h2 {
+  margin: 5px 0 16px;
+  font-size: clamp(25px,3.2vw,38px);
+  letter-spacing: .03em;
+}
+
+#level-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.sector-row h3 {
+  margin: 10px 0 4px;
+  color: var(--gold);
+  font-size: 15px;
+  letter-spacing: .15em;
+}
+
+.sector-row p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 9px;
+}
+
+.level-buttons {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 8px;
+}
+
+.level-buttons button {
+  min-height: 78px;
+  padding: 10px;
+  text-align: left;
+}
+
+.level-buttons strong {
+  display: block;
+  font-size: 13px;
+  /* Break inside a word only when the word alone is wider than the tile. */
+  overflow-wrap: break-word;
+}
+
+.level-buttons small {
+  display: block;
+  color: var(--gold);
+  margin-top: 8px;
+}
+
+.level-buttons button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.dialog {
+  width: min(510px,100%);
+  padding: 30px;
+  background: linear-gradient(140deg,#0a2437f3,#091726f5);
+  border: 1px solid #6cd8e5;
+  border-radius: 18px;
+  box-shadow: 0 20px 90px #000b,0 0 50px #20c5e936;
+  backdrop-filter: blur(12px);
+}
+
+.help {
+  max-height: calc(100vh - var(--topbar-height) - 32px);
+  max-height: calc(100dvh - var(--topbar-height) - 32px);
+  overflow: auto;
+}
+
+.how-diagram {
+  height: 190px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background: radial-gradient(circle,#10395a,#071521);
+  border: 1px solid #488da268;
+  border-radius: 12px;
+  margin: 16px 0;
+  color: #90edff;
+}
+
+.source-symbol {
+  font-size: 25px;
+  text-shadow: 0 0 15px #fff;
+}
+
+.flow {
+  font-size: 27px;
+  line-height: 28px;
+}
+
+.split-symbol {
+  font-size: 30px;
+  color: #6df5ff;
+  text-shadow: 0 0 16px #21ecff;
+}
+
+.branches {
+  font-size: 37px;
+  line-height: 33px;
+}
+
+.flow-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: #e8d699;
+}
+
+.result {
+  width: min(430px,100%);
+  max-height: 100%;
+  overflow-y: auto;
+  margin: 0;
+}
+
+/* Keep the card above the HUD so the Rush timer and score stay visible. */
+#result-screen {
+  padding-top: calc(var(--hud-info-height, 0px) + 16px);
+  padding-bottom: calc(var(--hud-height, 0px) + 16px);
+}
+
+.result h2 {
+  color: #f3e2af;
+}
+
+#result-save-status:not(:empty) {
+  color: #ff9dab;
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
+#star-list {
+  display: grid;
+  gap: 8px;
+}
+
+#star-list div {
+  padding: 9px 13px;
+  border-radius: 8px;
+  background: #153348;
+  color: #bad6e1;
+}
+
+#star-list .earned {
+  color: #ffe6a1;
+  background: #4d3d1d;
+}
+
+#hud {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 15px max(14px, env(safe-area-inset-right, 0px))
+      max(14px,env(safe-area-inset-bottom, 0px))
+      max(14px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(180deg,#061525ed,#081a2af7);
+  border-top: 1px solid #4de2ff70;
+  box-shadow: 0 -10px 40px #0009;
+  backdrop-filter: blur(10px);
+}
+
+#hud-info {
+  position: absolute;
+  z-index: 4;
+  top: var(--topbar-height);
+  left: 0;
+  right: 0;
+  padding: 10px max(14px, env(safe-area-inset-right, 0px)) 10px
+      max(14px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(180deg,#061525f2,#081a2ae0);
+  border-bottom: 1px solid #4de2ff40;
+  box-shadow: 0 10px 30px #0007;
+  backdrop-filter: blur(10px);
+}
+
+.hud-title {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.hud-title h2 {
+  font-size: 23px;
+  margin: 3px 0;
+}
+
+
+#level-hint {
+  color: #abc9d5;
+  font-size: 13px;
+  margin: 2px 0 0;
+}
+
+.hud-tools {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.inventory,.hud-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.piece {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 145px;
+  padding: 7px 10px;
+  text-align: left;
+}
+
+.piece img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.piece span {
+  font-size: 12px;
+}
+
+.piece b {
+  display: block;
+  color: var(--gold);
+  font-size: 16px;
+}
+
+.piece.selected {
+  border-color: #b1f7ff;
+  box-shadow: 0 0 18px #34e4f97a;
+}
+
+.piece:disabled {
+  opacity: .45;
+}
+
+.hud-actions button {
+  min-width: 75px;
+}
+
+kbd {
+  font-family: inherit;
+  border: 1px solid #79b4c366;
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: #a6cbdb;
+  font-size: 10px;
+}
+
+.hud-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #8fb6c9;
+  letter-spacing: .07em;
+}
+
+#rush-meta {
+  margin-left: auto;
+  text-align: right;
+}
+
+#rush-meta strong {
+  display: block;
+  color: var(--gold);
+  font-size: 24px;
+}
+
+#rush-meta small {
+  color: #9cc8d8;
+}
+
+#toast {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  top: 68px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 30px);
+  padding: 10px 18px;
+  border: 1px solid #f7b07199;
+  border-radius: 9px;
+  background: #422420ed;
+  color: #ffe1ba;
+  box-shadow: 0 10px 35px #000a;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+
+#toast.visible {
+  opacity: 1;
+}
+
+#boot-error {
+  position: absolute;
+  z-index: 20;
+  inset: 20%;
+  padding: 30px;
+  background: #361c27;
+  color: white;
+  border: 1px solid #ff9c9c;
+}
+
+@media(max-width:700px) {
+  :root {
+    --topbar-height: calc(48px + env(safe-area-inset-top, 0px));
+  }
+
+  .brand {
+    font-size: 11px;
+    letter-spacing: .12em;
+  }
+
+  #top-status {
+    display: none;
+  }
+
+  #mute-button {
+    margin-left: auto;
+  }
+
+  #topbar {
+    gap: 7px;
+  }
+
+
+  .screen {
+    align-items: flex-start;
+    padding: 16px max(16px, env(safe-area-inset-right, 0px))
+        max(16px, env(safe-area-inset-bottom, 0px))
+        max(16px, env(safe-area-inset-left, 0px));
+  }
+
+  .title-panel {
+    width: 100%;
+    padding: 20px;
+    margin-top: 4px;
+  }
+
+  .title-art {
+    max-height: 100px;
+  }
+
+  .title-panel h1 {
+    font-size: 36px;
+  }
+
+  .title-panel p {
+    font-size: 13px;
+  }
+
+  .menu-actions {
+    margin-top: 14px;
+  }
+
+  .menu-actions button {
+    flex: 1;
+    min-width: 110px;
+    font-size: 12px;
+  }
+
+  .attract-count {
+    margin-top: 16px;
+  }
+
+  .selection-panel {
+    padding: 15px;
+    max-height: calc(100vh - var(--topbar-height) - 16px);
+    max-height: calc(100dvh - var(--topbar-height) - 16px);
+  }
+
+  .level-buttons button {
+    min-height: 68px;
+    padding: 6px;
+  }
+
+  .level-buttons strong {
+    font-size: 10px;
+  }
+
+  .dialog {
+    padding: 20px;
+  }
+
+  #result-screen {
+    align-items: flex-end;
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom, 0px));
+  }
+
+  #result-screen .result {
+    width: 100%;
+    padding: 14px;
+  }
+
+  #result-screen h2 {
+    font-size: 22px;
+    margin: 3px 0 9px;
+  }
+
+  #result-screen #star-list {
+    gap: 4px;
+  }
+
+  #result-screen #star-list div {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  #result-screen .menu-actions {
+    margin-top: 9px;
+  }
+
+  #result-screen .menu-actions button {
+    min-width: 0;
+  }
+
+  .dialog p {
+    font-size: 13px;
+  }
+
+  #hud {
+    padding: 9px max(10px, env(safe-area-inset-right, 0px))
+        max(9px,env(safe-area-inset-bottom, 0px))
+        max(10px, env(safe-area-inset-left, 0px));
+  }
+
+  .hud-title h2 {
+    font-size: 18px;
+  }
+
+  #hud-info {
+    padding: 6px max(10px, env(safe-area-inset-right, 0px)) 6px
+        max(10px, env(safe-area-inset-left, 0px));
+  }
+
+  #level-hint {
+    font-size: 11px;
+    margin: 1px 0 0;
+  }
+
+  .hud-tools {
+    gap: 6px;
+  }
+
+  .inventory,.hud-actions {
+    gap: 4px;
+  }
+
+  .piece {
+    min-width: 0;
+    min-height: 44px;
+    padding: 5px;
+    gap: 4px;
+  }
+
+  .piece img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .piece span {
+    font-size: 10px;
+  }
+
+  .piece b {
+    font-size: 13px;
+  }
+
+  .piece kbd,.hud-actions kbd {
+    display: none;
+  }
+
+  .hud-actions button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 7px 8px;
+    font-size: 11px;
+  }
+
+  .hud-foot {
+    font-size: 9px;
+    margin-top: 3px;
+  }
+
+  .piece,
+  .hud-actions button {
+    min-height: 52px;
+  }
+
+}
+
+@media(max-width:410px) {
+  .title-panel {
+    background: #071827f0;
+  }
+
+  .inventory .piece {
+    width: 64px;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .inventory .piece span {
+    font-size: 0;
+  }
+
+  .inventory .piece b {
+    font-size: 13px;
+  }
+
+  .piece img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .hud-actions button {
+    padding: 6px 3px;
+  }
+
+  .hud-foot {
+    letter-spacing: 0;
+  }
+
+}
+
+/* Short landscape windows: the card must fit between the top bar and the HUD, because the Rush
+   timer keeps running while it is shown. */
+@media(min-width:701px) and (max-height:760px) {
+  #result-screen {
+    padding-top: calc(var(--hud-info-height, 0px) + 10px);
+    padding-bottom: calc(var(--hud-height, 0px) + 10px);
+  }
+
+  #result-screen .result {
+    padding: 14px 18px;
+  }
+
+  #result-screen h2 {
+    font-size: 22px;
+    margin: 3px 0 8px;
+  }
+
+  #result-screen #star-list {
+    gap: 4px;
+  }
+
+  #result-screen #star-list div {
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+
+  #result-screen p {
+    margin: 6px 0;
+    font-size: 13px;
+  }
+
+  #result-screen .menu-actions {
+    margin-top: 8px;
+    flex-wrap: nowrap;
+  }
+
+  #result-screen .menu-actions button {
+    min-width: 0;
+    padding: 7px 12px;
+  }
+}
+
+@media(min-width:701px) and (max-width:1199px) and (orientation:landscape) {
+  .screen {
+    padding: 12px max(12px, env(safe-area-inset-right, 0px))
+        max(12px, env(safe-area-inset-bottom, 0px))
+        max(12px, env(safe-area-inset-left, 0px));
+  }
+
+  .title-panel,.selection-panel,.help {
+    width: min(40vw, 430px);
+    max-height: calc(100vh - var(--topbar-height) - 24px);
+    max-height: calc(100dvh - var(--topbar-height) - 24px);
+    overflow-y: auto;
+    padding: 18px;
+  }
+
+  .selection-panel .level-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #result-screen .result {
+    width: min(40vw, 430px);
+  }
+}
+
+/* Phones: five tiles per row would leave about 50 px per name, so they get three. */
+@media(max-width:700px) {
+  .selection-panel .level-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* The attract board runs behind this full-width panel on phones; let it show only faintly. */
+  .selection-panel {
+    background: linear-gradient(125deg,#071827fa,#102539f5);
+  }
+}
+
+@media(min-width:701px) and (orientation:portrait) {
+  .screen:not(#result-screen) {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 16px 20px max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .title-panel,.selection-panel,.help {
+    width: min(760px, 100%);
+    max-height: min(52dvh, 610px);
+    overflow-y: auto;
+  }
+
+  .selection-panel .level-buttons {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media(min-width:960px) and (orientation:portrait) {
+  .selection-panel .level-buttons {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media(max-height:500px) and (orientation:landscape) {
+  :root {
+    --topbar-height: calc(48px + env(safe-area-inset-top, 0px));
+  }
+
+  #topbar {
+    gap: 8px;
+  }
+
+  #top-status {
+    display: none;
+  }
+
+  .title-panel {
+    padding: 12px;
+  }
+
+  .title-art {
+    max-height: 54px;
+    margin: 2px 0;
+  }
+
+  .title-panel p {
+    font-size: 12px;
+    line-height: 1.25;
+    margin: 4px 0;
+  }
+
+  .title-panel .menu-actions {
+    margin-top: 7px;
+  }
+
+  .title-panel .menu-actions button {
+    min-width: 120px;
+    padding: 5px 8px;
+  }
+
+  .attract-count {
+    margin-top: 8px;
+  }
+
+  #mute-button {
+    margin-left: auto;
+  }
+
+  #hud {
+    padding-top: 5px;
+    padding-bottom: max(5px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .hud-title h2 {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .hud-title {
+    gap: 8px;
+  }
+
+  #rush-meta strong {
+    font-size: 18px;
+  }
+
+  #level-hint {
+    margin: 0 0 3px;
+    font-size: 11px;
+  }
+
+  .hud-tools {
+    gap: 6px;
+  }
+
+  .inventory,.hud-actions {
+    gap: 4px;
+  }
+
+  .piece {
+    min-width: 100px;
+    min-height: 44px;
+    padding: 3px 6px;
+  }
+
+  .piece img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .hud-actions button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 4px 8px;
+  }
+
+  .hud-foot {
+    margin-top: 2px;
+  }
+
+  #result-screen {
+    align-items: flex-start;
+    padding-top: 5px;
+    padding-bottom: calc(var(--hud-height, 0px) + 5px);
+  }
+
+  #result-screen .result {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  /* On a phone held sideways the card is about 200 px tall. The stars are what the player came for,
+     so keep them and drop the summary line, which the HUD footer already shows. */
+  #result-screen .eyebrow,
+  #result-screen #result-summary {
+    display: none;
+  }
+
+  #result-screen h2 {
+    font-size: 18px;
+    margin: 0 0 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #result-screen #star-list {
+    flex: none;
+    gap: 3px;
+  }
+
+  #result-screen #star-list div {
+    padding: 2px 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  #result-screen .menu-actions,
+  #result-screen #result-summary,
+  #result-screen #result-save-status {
+    flex: none;
+  }
+
+  #result-screen #result-save-status:empty {
+    display: none;
+  }
+}
+
+@media(max-height:500px) and (orientation:landscape) {
+  :root {
+    --hud-column-width: min(32vw, 280px);
+  }
+
+  /* One right-hand column: the text strip fills it with its text at the top, and the button bar
+     sits over its lower part. */
+  #hud-info {
+    left: auto;
+    bottom: 0;
+    width: var(--hud-column-width);
+    padding: 8px max(8px, env(safe-area-inset-right, 0px)) 8px 8px;
+    border-bottom: 0;
+    border-left: 1px solid #4de2ff70;
+    box-shadow: none;
+  }
+
+  #hud {
+    left: auto;
+    width: var(--hud-column-width);
+    padding: 8px max(8px, env(safe-area-inset-right, 0px))
+        max(8px, env(safe-area-inset-bottom, 0px)) 8px;
+    border-top: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .hud-title {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 2px 5px;
+  }
+
+  .hud-title > div:first-child {
+    min-width: 0;
+  }
+
+  #rush-meta {
+    grid-column: 1;
+    grid-row: 2;
+    margin-left: 0;
+    text-align: left;
+  }
+
+  #level-hint {
+    margin: 3px 0 7px;
+    line-height: 1.2;
+  }
+
+  .hud-tools {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .inventory,.hud-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .piece {
+    min-width: 0;
+    width: 100%;
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .piece img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .piece kbd,.hud-actions kbd {
+    display: none;
+  }
+
+  .hud-actions button {
+    min-width: 0;
+    padding: 4px;
+  }
+
+  .hud-foot {
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+  }
+
+  #result-screen {
+    right: var(--hud-column-width);
+    padding: 5px 8px;
+  }
+
+  #result-screen .result {
+    width: min(31vw, 260px);
+    padding: 12px;
+  }
+
+  #result-screen .menu-actions {
+    gap: 5px;
+  }
+
+  #result-screen .menu-actions button {
+    flex: 1;
+    min-width: 0;
+    padding: 5px;
+    font-size: 11px;
+  }
+}

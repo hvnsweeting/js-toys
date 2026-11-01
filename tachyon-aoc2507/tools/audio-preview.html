@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tachyon Cascade audio preview</title>
+  <style>
+    body { margin: 2rem auto; padding: 0 1rem; max-width: 42rem; color: #d7faff;
+      background: #090d18; font: 16px system-ui, sans-serif; }
+    h1 { font-size: 1.5rem; }
+    button { margin: .3rem; padding: .7rem 1rem; color: #d7faff; background: #183046;
+      border: 1px solid #397489; border-radius: .4rem; cursor: pointer; }
+    button:hover { background: #25506a; }
+    label { display: block; margin: 1.5rem .3rem; }
+    input { width: 15rem; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <h1>Tachyon Cascade audio preview</h1>
+  <p>Press Start to enable audio. Change intensity while the score plays.</p>
+  <button id="start">Start music</button><button id="stop">Stop music</button>
+  <label>Intensity <input id="intensity" type="range" min="0" max="1" step="0.01" value="0.5">
+    <output id="intensity-value">0.50</output></label>
+  <div id="effects"></div>
+  <script type="module">
+    import { createMusic } from '../src/audio/music.js';
+    import { createSfx } from '../src/audio/sfx.js';
+    let context;
+    let music;
+    let effects;
+    async function ready() {
+      if (!context) {
+        context = new AudioContext();
+        music = createMusic(context, context.destination);
+        effects = createSfx(context, context.destination, music);
+      }
+      await context.resume();
+    }
+    document.querySelector('#start').onclick = async () => {
+      await ready();
+      music.start();
+      music.setIntensity(Number(document.querySelector('#intensity').value));
+    };
+    document.querySelector('#stop').onclick = () => music?.stop();
+    document.querySelector('#intensity').oninput = event => {
+      const value = Number(event.target.value);
+      document.querySelector('#intensity-value').value = value.toFixed(2);
+      music?.setIntensity(value);
+    };
+    const triggers = {
+      place: () => effects.place(), remove: () => effects.remove(), fire: () => effects.fire(),
+      split: () => effects.split(7, 15), targetLit: () => effects.targetLit(),
+      voidHit: () => effects.voidHit(), win: () => effects.win(3), fail: () => effects.fail(),
+      click: () => effects.click(), tick: () => effects.tick(),
+    };
+    for (const [name, trigger] of Object.entries(triggers)) {
+      const button = document.createElement('button');
+      button.textContent = name;
+      button.onclick = async () => { await ready(); trigger(); };
+      document.querySelector('#effects').append(button);
+    }
+  </script>
+</body>
+</html>

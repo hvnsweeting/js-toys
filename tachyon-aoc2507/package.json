@@ -1,0 +1,17 @@
+{
+  "name": "tachyon-aoc2507",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A 3D beam-splitting puzzle game based on Advent of Code 2025 day 7",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.js",
+    "vendor": "node tools/vendor.mjs",
+    "check": "node tools/browser-check.mjs"
+  },
+  "devDependencies": {
+    "three": "0.180.0",
+    "puppeteer-core": "25.16.0"
+  }
+}

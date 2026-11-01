@@ -38,7 +38,7 @@ test('separate histories merge timeline counts', () => {
 test('win reason and stars report quota and void failures', () => {
   const puzzle = {...level(['.S.', '...', '.^.', '...'], 'TVT'), quotas: {0: 2}, bonus: 2};
   const result = simulate(puzzle);
-  assert.match(checkWin(puzzle, result).reason, /needs exactly 2/);
+  assert.match(checkWin(puzzle, result).reason, /needs 2 timelines/);
   assert.deepEqual(computeStars(puzzle, result, 0), [false, false, false]);
 });
 test('every failing detector is reported, and the reason names no column', () => {
@@ -47,12 +47,14 @@ test('every failing detector is reported, and the reason names no column', () =>
   assert.equal(outcome.won, false);
   assert.deepEqual(outcome.failures.map(failure => [failure.col, failure.kind]),
       [[0, 'dark'], [1, 'void'], [2, 'dark']]);
-  assert.equal(outcome.reason, 'A red void caught 1 timeline. 2 more highlighted.');
+  assert.equal(outcome.reason,
+      'Try again: The beam hit a red void. Keep light off the highlighted red marker. ' +
+      '2 other detectors highlighted.');
   const quotaOnly = {...level(['.S.', '...', '.^.', '...'], 'TVT'), quotas: {0: 2}};
   const quotaOutcome = checkWin(quotaOnly, simulate(quotaOnly));
   assert.deepEqual(quotaOutcome.failures, [{col: 0, kind: 'quota', count: 1, quota: 2}]);
   assert.equal(quotaOutcome.reason,
-      'A gold target needs exactly 2 timelines; it has 1. It is highlighted.');
+      'Try again: A gold target needs 2 timelines, but has 1. Adjust the paths reaching it.');
   assert.doesNotMatch(outcome.reason + quotaOutcome.reason, /column/i);
 });
 test('placement protects the source and fixed crystals', () => {

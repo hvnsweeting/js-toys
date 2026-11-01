@@ -6,7 +6,7 @@ import {constants} from 'node:fs';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 const publicPrefixes = ['src/', 'vendor/', 'assets/'];
-const exactFiles = new Set(['index.html', 'style.css']);
+const exactFiles = new Set(['index.html', 'style.css', 'timeline-lab.html']);
 function isPublic(relativeName) {
   return exactFiles.has(relativeName) ||
       publicPrefixes.some(prefix => relativeName.startsWith(prefix));

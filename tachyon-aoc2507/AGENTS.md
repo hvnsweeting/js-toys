@@ -24,6 +24,7 @@ Run both `npm test` and `npm run check` before committing, and look at the chang
 ## Files
 
 - `src/sim.js`: the beam rules, win check and stars. No DOM, no three.js.
+- `src/part2-levels.js`: six part 2 levels played on the main board. Each level restores missing crystals in a cropped portion of the puzzle example; the last goal is 40 exit timelines. Progress shares the main profile, with completed old rounds imported as one-star levels. `timeline-lab.html` sends old links to the integrated level selection.
 - `src/levels.js`: the 15 campaign levels. Each design lists fixed pieces and a reference solution; inventory and par come from that solution, and detector goals are in `goals`.
 - `src/solver.js`: search solver used by tests and by the Rush generator to set par.
 - `src/generator.js`: seeded Cascade Rush boards. `src/rush.js`: Rush score and timer.

@@ -81,6 +81,16 @@ export function simulate(level, placements = []) {
 // Lists every detector that breaks the goal, so the board can highlight all of them; the reason
 // describes the first in words, without a column number the player would have to count.
 export function checkWin(level, result) {
+  if (level.timelineGoal != null) {
+    const won = result.totalTimelines === level.timelineGoal;
+    return {
+      won,
+      reason: won ? 'The exit timeline goal is met.' :
+          `Try again: ${result.totalTimelines} timelines reached the exit; ` +
+          `you need exactly ${level.timelineGoal}.`,
+      failures: [],
+    };
+  }
   const failures = [];
   for (const detector of result.detectorResults) {
     const {col, kind, count, quota} = detector;
@@ -91,19 +101,24 @@ export function checkWin(level, result) {
   }
   if (!failures.length)
     return {won: true, reason: 'All targets are lit and all voids are dark.', failures};
-  // A void hit is the most surprising failure, so it is described first.
+  // Lead with a void hit because it is harder to notice than a dark target.
   const first = failures.find(failure => failure.kind === 'void') ?? failures[0];
   const plural = number => number === 1 ? '' : 's';
   let reason;
   if (first.kind === 'void')
-    reason = `A red void caught ${first.count} timeline${plural(first.count)}.`;
+    reason = 'Try again: The beam hit a red void. Keep light off the highlighted red marker.';
   else if (first.kind === 'quota')
-    reason = `A gold target needs exactly ${first.quota} timeline${plural(first.quota)}; it has ${
-        first.count}.`;
-  else
-    reason = 'A gold target is dark. Route a beam to it.';
+    reason = `Try again: A gold target needs ${first.quota} timeline${plural(first.quota)}, ` +
+        `but has ${first.count}. Adjust the paths reaching it.`;
+  else {
+    const darkCount = failures.filter(failure => failure.kind === 'dark').length;
+    reason = `Try again: ${darkCount} gold target${plural(darkCount)} ` +
+        `${darkCount === 1 ? 'is' : 'are'} still dark. ` +
+        'Adjust the beam to reach the highlighted targets.';
+  }
   const others = failures.length - 1;
-  reason += others ? ` ${others} more highlighted.` : ' It is highlighted.';
+  if (first.kind !== 'dark' && others)
+    reason += ` ${others} other detector${plural(others)} highlighted.`;
   return {won: false, reason, failures};
 }
 

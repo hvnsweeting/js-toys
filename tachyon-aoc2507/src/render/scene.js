@@ -740,7 +740,7 @@ export function createScene(stage, getCoveredArea) {
   const observer = new ResizeObserver(resize);
   observer.observe(stage);
   // The free area depends on overlay panels too: the HUD grows when a hint or failure reason wraps.
-  for (const selector of ['#hud', '#hud-info', '#topbar', '.title-panel', '.selection-panel', '.help', '.result']) {
+  for (const selector of ['#hud', '#hud-info', '#topbar', '.title-panel', '.selection-panel', '.help', '#result-next']) {
     const panel = document.querySelector(selector);
     if (panel) observer.observe(panel);
   }

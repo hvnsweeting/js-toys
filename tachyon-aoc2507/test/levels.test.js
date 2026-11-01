@@ -50,7 +50,7 @@ test('15 authored levels require their par, and each bonus is reachable', () => 
       const firstPlacement = [reference[0]];
       const firstOutcome = checkWin(puzzle, simulate(puzzle, firstPlacement));
       assert.equal(firstOutcome.won, false, `${level.id} first placement already wins`);
-      assert.match(firstOutcome.reason, /^A (red void|gold target) /, `${level.id} feedback`);
+      assert.match(firstOutcome.reason, /^Try again: /, `${level.id} feedback`);
       assert.ok(firstOutcome.failures.length > 0, `${level.id} highlights no detector`);
     }
 

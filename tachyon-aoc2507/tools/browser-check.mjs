@@ -6,7 +6,7 @@ import {createServer} from '../server.mjs';
 import {publishScreenshots, touchSizes} from './screenshots.mjs';
 
 const known = [
-  'title', 'input', 'campaign', 'void', 'blocks', 'rush', 'sizes', 'resize',
+  'title', 'timeline', 'input', 'campaign', 'void', 'blocks', 'rush', 'sizes', 'resize',
   'storage', 'storage-access', 'audio', 'memory', 'touch'
 ];
 const requested = process.argv.slice(2);
@@ -171,7 +171,8 @@ async function checkTouchControls(page) {
   if (problems.length) throw new Error(`Touch controls: ${problems.join('; ')}`);
 }
 
-async function checkResultCard(page) {
+async function checkResultView(page, saveError = false) {
+  await nextPaintedFrame(page);
   const details = await page.evaluate(() => {
     const {result, level} = game.state;
     let expectedSegments = 0;
@@ -192,47 +193,25 @@ async function checkResultCard(page) {
         }
       }
     }
-    const card = document.querySelector('.result').getBoundingClientRect();
-    const resultButtons = [...document.querySelectorAll('#result-screen button')]
-        .filter(button => !button.closest('.hidden'));
-    // The card's actions must exist; checking only buttons present would pass without them.
-    // Rush offers no Retry, because replaying a solved board would pay its score again.
-    const rush = game.state.mode === 'rush';
-    const requiredActions = rush ? ['next', 'menu'] : ['next', 'retry', 'menu'];
-    const missingResultActions = requiredActions.filter(action =>
-        !resultButtons.some(button => button.dataset.action === action));
-    if (rush && resultButtons.some(button => button.dataset.action === 'retry'))
-      missingResultActions.push('retry hidden in Rush');
-    const resultButtonProblems = missingResultActions.map(action => `missing ${action}`).concat(
-        resultButtons.filter(button => {
-          const bounds = button.getBoundingClientRect();
-          const x = bounds.left + bounds.width / 2;
-          const y = bounds.top + bounds.height / 2;
-          const top = document.elementFromPoint(x, y);
-          const insideViewport = bounds.left >= 0 && bounds.top >= 0 &&
-              bounds.right <= innerWidth && bounds.bottom <= innerHeight;
-          const insideCard = bounds.left >= card.left && bounds.top >= card.top &&
-              bounds.right <= card.right && bounds.bottom <= card.bottom;
-          return !insideViewport || !insideCard ||
-              (top !== button && !button.contains(top));
-        }).map(button => button.textContent.trim()));
-    const starTextProblems = [...document.querySelectorAll('#star-list div')]
-        .filter(row => {
-          const style = getComputedStyle(row);
-          return row.scrollWidth > row.clientWidth + 1 ||
-              row.scrollHeight > row.clientHeight + 1 ||
-              ['hidden', 'clip'].includes(style.overflowX) ||
-              ['hidden', 'clip'].includes(style.overflowY) ||
-              style.textOverflow === 'ellipsis';
-        }).map(row => row.textContent.trim());
-    const resultHudControlsVisible = [...document.querySelectorAll(
-        '#hud [data-piece], #hud [data-action]')]
-        .filter(control => control.getClientRects().length &&
-            getComputedStyle(control).visibility !== 'hidden')
-        .map(control => control.textContent.trim());
+    const resultScreen = document.getElementById('result-screen');
+    const button = document.getElementById('result-next');
+    const buttonBounds = button.getBoundingClientRect();
+    const x = buttonBounds.left + buttonBounds.width / 2;
+    const y = buttonBounds.top + buttonBounds.height / 2;
+    const top = document.elementFromPoint(x, y);
+    const buttonReady = resultScreen.children.length === 1 &&
+        resultScreen.firstElementChild === button && button.dataset.action === 'next' &&
+        buttonBounds.width >= 44 && buttonBounds.height >= 44 &&
+        buttonBounds.left >= 0 && buttonBounds.top >= 0 &&
+        buttonBounds.right <= innerWidth && buttonBounds.bottom <= innerHeight &&
+        (top === button || button.contains(top));
+    const oldResultContent = document.querySelector(
+        '#result-title, #star-list, #result-summary, #result-save-status, #result-screen .dialog');
+    const hudHidden = document.getElementById('hud').classList.contains('hidden') &&
+        document.getElementById('hud-info').classList.contains('hidden');
     const board = game.boardBounds;
-    const overlap = card.left < board.right && card.right > board.left &&
-        card.top < board.bottom && card.bottom > board.top;
+    const overlap = buttonBounds.left < board.right && buttonBounds.right > board.left &&
+        buttonBounds.top < board.bottom && buttonBounds.bottom > board.top;
     const toast = document.querySelector('#toast');
     return {
       screen: game.state.screen,
@@ -242,23 +221,24 @@ async function checkResultCard(page) {
       beam: game.beamDrawState,
       pixels: game.beamPixels(),
       expectedSegments,
-      starTextProblems,
-      resultButtonProblems,
-      resultHudControlsVisible,
+      buttonReady,
+      oldResultContent: Boolean(oldResultContent),
+      hudHidden,
       toast: toast.textContent.trim(),
       visibleToast: toast.classList.contains('visible'),
       overlap,
       board,
-      card: {left: card.left, right: card.right, top: card.top, bottom: card.bottom},
+      button: buttonBounds.toJSON(),
     };
   });
   if (details.screen !== 'result' || details.revealRow !== details.finalRow ||
       details.drawnSegments !== details.expectedSegments ||
       !details.beam.visible || !details.beam.inScene || details.beam.opacity <= 0 ||
       details.beam.drawCount <= 0 ||
-      details.beam.drawCount !== details.expectedSegments || details.visibleToast ||
-      details.overlap || details.starTextProblems.length ||
-      details.resultHudControlsVisible.length || details.resultButtonProblems.length) {
+      details.beam.drawCount !== details.expectedSegments ||
+      details.visibleToast !== saveError ||
+      (saveError && !details.toast.includes('could not be saved')) ||
+      details.overlap || !details.buttonReady || details.oldResultContent || !details.hudHidden) {
     throw new Error(`Incomplete or covered result: ${JSON.stringify(details)}`);
   }
   const pixels = details.pixels;
@@ -278,34 +258,13 @@ async function checkResultCard(page) {
     throw new Error(`Beam segments lack visible pixels: ${JSON.stringify(pixels)}`);
   }
 }
-async function checkRushTimer(page) {
-  const detail = await page.evaluate(() => {
-    const timer = document.querySelector('#rush-timer');
-    const timerBounds = timer.getBoundingClientRect();
-    const score = document.querySelector('#rush-score');
-    const scoreBounds = score.getBoundingClientRect();
-    const card = document.querySelector('.result').getBoundingClientRect();
-    const x = timerBounds.left + timerBounds.width / 2;
-    const y = timerBounds.top + timerBounds.height / 2;
-    const top = document.elementFromPoint(x, y);
-    const scoreTop = document.elementFromPoint(
-        scoreBounds.left + scoreBounds.width / 2, scoreBounds.top + scoreBounds.height / 2);
-    return {
-      timer: timer.textContent,
-      score: score.textContent,
-      overlap: card.left < timerBounds.right && card.right > timerBounds.left &&
-          card.top < timerBounds.bottom && card.bottom > timerBounds.top,
-      scoreOverlap: card.left < scoreBounds.right && card.right > scoreBounds.left &&
-          card.top < scoreBounds.bottom && card.bottom > scoreBounds.top,
-      covered: top !== timer && !timer.contains(top),
-      scoreCovered: scoreTop !== score && !score.contains(scoreTop),
-      scoreInsideViewport: scoreBounds.left >= 0 && scoreBounds.top >= 0 &&
-          scoreBounds.right <= innerWidth && scoreBounds.bottom <= innerHeight
-    };
-  });
-  if (!detail.timer || !detail.score || detail.overlap || detail.scoreOverlap || detail.covered ||
-      detail.scoreCovered || !detail.scoreInsideViewport)
-    throw new Error(`Rush timer is hidden: ${JSON.stringify(detail)}`);
+// The result screen's single button must name where it goes.
+async function checkNextLabel(page, expected) {
+  // A stale label from an earlier win would otherwise pass when this run did not win.
+  const screen = await page.evaluate(() => game.state.screen);
+  if (screen !== 'result') throw new Error(`Expected the result screen, found "${screen}"`);
+  const label = await page.$eval('#result-next', button => button.textContent.trim());
+  if (label !== expected) throw new Error(`Result button reads "${label}", expected "${expected}"`);
 }
 // ResizeObserver refits the board after layout and before the next paint, so measure what is painted.
 // Every beam that runs into a block must light a point just outside the block's face and must not
@@ -556,7 +515,7 @@ async function touchPlaythrough(page, width, height) {
   await page.waitForFunction(() => game.state.phase === 'running');
   await tapControl(page, '#fire-button');
   await page.waitForFunction(() => game.state.screen === 'result');
-  await checkResultCard(page);
+  await checkResultView(page);
   await checkTouchControls(page);
   await shot(page, `touch-win-${width}x${height}`);
 }
@@ -590,6 +549,100 @@ try {
   });
   for (const name of scenarios) {
     const errorsBefore = errors.length;
+    if (name === 'timeline')
+      await withPage(name, async page => {
+        await page.click('[data-action="timeline"]');
+        const selection = await page.evaluate(() => ({
+          screen: game.state.screen,
+          mode: game.state.mode,
+          heading: document.querySelector('#select-title').textContent,
+          secondLocked: document.querySelector('#level-grid button:nth-child(2)').disabled,
+        }));
+        if (selection.screen !== 'select' || selection.mode !== 'timeline' ||
+            selection.heading !== 'Part 2: Timelines' || !selection.secondLocked)
+          throw new Error(`Part 2 selection failed: ${JSON.stringify(selection)}`);
+        await page.waitForFunction(() => game.audioReady && game.audioState === 'running');
+        await page.click('#level-grid button:first-child');
+        for (const [width, height] of [[1280, 800], [390, 844], [844, 390]]) {
+          await page.setViewport({width, height});
+          await checkBoardFit(page);
+          await checkTouchControls(page);
+          await shot(page, `timeline-${width}x${height}`);
+        }
+        await page.evaluate(() => {
+          game.fire();
+          game.skipAnimation();
+        });
+        const failure = await page.evaluate(() => ({
+          phase: game.state.phase,
+          feedback: document.querySelector('#level-hint').textContent,
+          stats: document.querySelector('#board-stats').textContent,
+          toast: document.querySelector('#toast').textContent,
+        }));
+        if (failure.phase !== 'editing' || !failure.feedback.includes('need exactly 2') ||
+            !failure.stats.includes('1 / 2 timelines') || failure.toast)
+          throw new Error(`Part 2 failed-shot feedback: ${JSON.stringify(failure)}`);
+        for (let index = 0; index < 6; index++) {
+          const before = await page.evaluate(() => ({
+            mode: game.state.mode,
+            id: game.state.level.id,
+            goal: game.state.level.timelineGoal,
+          }));
+          if (before.mode !== 'timeline' || before.id !== `t${index + 1}` ||
+              before.goal !== [2, 4, 8, 13, 20, 40][index])
+            throw new Error(`Wrong Part 2 level: ${JSON.stringify(before)}`);
+          await page.evaluate(() => {
+            for (const piece of game.state.level.solution)
+              game.place(piece.row, piece.col, piece.kind);
+            game.fire();
+            game.skipAnimation();
+          });
+          await checkResultView(page);
+          const saved = await page.evaluate(id =>
+            JSON.parse(localStorage.getItem('tachyon-cascade-v1')).stars[id], before.id);
+          if (saved !== 3) throw new Error(`${before.id} did not save three stars: ${saved}`);
+          if (index === 5) {
+            await page.setViewport({width: 390, height: 844});
+            await checkResultView(page);
+            await shot(page, 'timeline-final-390x844');
+          }
+          await page.click('#result-next');
+        }
+        const complete = await page.evaluate(() => ({
+          screen: game.state.screen,
+          mode: game.state.mode,
+          unlocked: [...document.querySelectorAll('#level-grid button')]
+              .every(button => !button.disabled),
+        }));
+        if (complete.screen !== 'select' || complete.mode !== 'timeline' || !complete.unlocked)
+          throw new Error(`Part 2 completion failed: ${JSON.stringify(complete)}`);
+        await page.goto(`${base}/timeline-lab.html`, {waitUntil: 'domcontentloaded'});
+        await page.waitForFunction(() => window.game?.state.screen === 'select');
+        const legacy = await page.evaluate(() => ({
+          mode: game.state.mode,
+          heading: document.querySelector('#select-title').textContent,
+          audioSettings: Boolean(document.querySelector('#audio-settings-button')),
+        }));
+        if (!page.url().endsWith('/index.html#timeline') || legacy.mode !== 'timeline' ||
+            legacy.heading !== 'Part 2: Timelines' || !legacy.audioSettings)
+          throw new Error(`Old Timeline Lab address did not open Part 2: ${JSON.stringify(legacy)}`);
+      });
+    if (name === 'timeline')
+      await withPage('timeline-migration', async page => {
+        await page.evaluate(() => localStorage.setItem('tachyon-timeline-lab-v1', '3'));
+        await page.goto(`${base}/timeline-lab.html`, {waitUntil: 'domcontentloaded'});
+        await page.waitForFunction(() => window.game?.state.screen === 'select');
+        const progress = await page.evaluate(() => ({
+          old: localStorage.getItem('tachyon-timeline-lab-v1'),
+          stars: JSON.parse(localStorage.getItem('tachyon-cascade-v1')).stars,
+          fourthUnlocked: !document.querySelector('#level-grid button:nth-child(4)').disabled,
+          fifthLocked: document.querySelector('#level-grid button:nth-child(5)').disabled,
+        }));
+        if (progress.old !== '3' ||
+            JSON.stringify(progress.stars) !== JSON.stringify({t1: 1, t2: 1, t3: 1}) ||
+            !progress.fourthUnlocked || !progress.fifthLocked)
+          throw new Error(`Old Timeline Lab progress was not imported: ${JSON.stringify(progress)}`);
+      });
     if (name === 'title')
       await withPage(name, async page => {
         await page.waitForFunction(
@@ -756,18 +809,37 @@ try {
         await page.waitForFunction(() => game.state.phase === 'running', {timeout: 30000});
         await page.evaluate(() => game.fire());
         await page.waitForFunction(() => game.state.screen === 'result', {timeout: 30000});
-        const stars = await page.$$eval('#star-list .earned', items => items.length);
-        if (stars !== 3) throw new Error(`Expected 3 stars, got ${stars}`);
-        await checkResultCard(page);
+        const savedStars = await page.evaluate(() =>
+          JSON.parse(localStorage.getItem('tachyon-cascade-v1')).stars.a1);
+        if (savedStars !== 3) throw new Error(`Expected 3 saved stars, got ${savedStars}`);
+        await checkResultView(page);
         await checkBoardFit(page);
         await shot(page, 'win-1280x800');
+        await checkNextLabel(page, 'Next level');
+        await page.click('#result-screen [data-action="next"]');
+        const advanced = await page.evaluate(() => ({screen: game.state.screen, level: game.state.level.id}));
+        if (advanced.screen !== 'game' || advanced.level !== 'a2')
+          throw new Error(`Next level did not load A2: ${JSON.stringify(advanced)}`);
+        // The card has no Menu action, so Escape (or the brand button) must still leave it.
+        await page.evaluate(() => {
+          const level = game.loadLevel('a1');
+          for (const piece of level.solution) game.place(piece.row, piece.col, piece.kind);
+          game.fire();
+          game.skipAnimation();
+        });
+        const beforeEscape = await page.evaluate(() => game.state.screen);
+        if (beforeEscape !== 'result') throw new Error(`A1 rerun ended on "${beforeEscape}"`);
+        await page.keyboard.press('Escape');
+        const escaped = await page.evaluate(() => game.state.screen);
+        if (escaped !== 'title') throw new Error(`Escape on the result card opened "${escaped}"`);
         await page.evaluate(() => {
           const level = game.loadLevel('a5');
           for (const piece of level.solution) game.place(piece.row, piece.col, piece.kind);
           game.fire();
           game.skipAnimation();
         });
-        await page.click('[data-action="next"]');
+        await checkNextLabel(page, 'Level select');
+        await page.click('#result-screen [data-action="next"]');
         const locked = await page.evaluate(() => ({
           screen: game.state.screen,
           button: [...document.querySelectorAll('#level-grid button')]
@@ -792,6 +864,22 @@ try {
         });
         if (!refreshed.unlocked || !refreshed.stars.includes('★'))
           throw new Error(`Level selection did not refresh: ${JSON.stringify(refreshed)}`);
+        // The last level has no next level at all, unlike A5 whose next is only locked.
+        await page.evaluate(() => {
+          const key = 'tachyon-cascade-v1';
+          const profile = JSON.parse(localStorage.getItem(key));
+          for (const id of ['b1', 'b2', 'b3', 'b4']) profile.stars[id] = 1;
+          localStorage.setItem(key, JSON.stringify(profile));
+          window.dispatchEvent(new StorageEvent('storage', {key}));
+          const level = game.loadLevel('c5');
+          for (const piece of level.solution) game.place(piece.row, piece.col, piece.kind);
+          game.fire();
+          game.skipAnimation();
+        });
+        await checkNextLabel(page, 'Level select');
+        await page.click('#result-screen [data-action="next"]');
+        const afterFinale = await page.evaluate(() => game.state.screen);
+        if (afterFinale !== 'select') throw new Error(`Finale's button opened "${afterFinale}"`);
       });
     if (name === 'void')
       await withPage(name, async page => {
@@ -807,13 +895,17 @@ try {
           return page.evaluate(() => ({
             phase: game.state.phase,
             toast: document.querySelector('#toast').textContent,
+            feedback: document.querySelector('#level-hint').textContent,
+            failureStyle: document.querySelector('#hud-info').classList.contains('failed'),
             marks: game.failureMarks,
           }));
         }
         const voidRun = await failureAfterRun('c1');
         const voidMark = voidRun.marks.find(mark => mark.col === 3);
-        if (voidRun.phase !== 'editing' || !voidRun.toast.includes('red void') ||
-            /column/i.test(voidRun.toast) || voidMark?.kind !== 'void' || !(voidMark.zoom >= 1.25))
+        if (voidRun.phase !== 'editing' || !voidRun.feedback.includes('red void') ||
+            !voidRun.feedback.startsWith('Try again:') || !voidRun.failureStyle || voidRun.toast ||
+            /column/i.test(voidRun.feedback) || voidMark?.kind !== 'void' ||
+            !(voidMark.zoom >= 1.25))
           throw new Error(`Void feedback missing: ${JSON.stringify(voidRun)}`);
         await checkBoardFit(page);
         await shot(page, 'void-failure');
@@ -824,17 +916,25 @@ try {
             .flatMap((kind, col) => kind === 'T' ? [col] : []));
         const darkCols = darkRun.marks.filter(mark => mark.kind === 'dark' && mark.zoom >= 1.25)
             .map(mark => mark.col);
-        if (!darkRun.toast.includes('gold target is dark') || /column/i.test(darkRun.toast) ||
+        if (!darkRun.feedback.includes('2 gold targets are still dark') || !darkRun.failureStyle ||
+            darkRun.toast || /column/i.test(darkRun.feedback) ||
             darkCols.length !== darkRun.marks.length ||
             JSON.stringify(darkCols) !== JSON.stringify(targetCols))
           throw new Error(`Dark target feedback missing: ${JSON.stringify(darkRun)}`);
         await shot(page, 'dark-target-failure');
-        const marksAfterEdit = await page.evaluate(() => {
+        const afterEdit = await page.evaluate(() => {
           const piece = game.state.level.solution[0];
           game.place(piece.row, piece.col, piece.kind);
-          return game.failureMarks.length;
+          return {
+            marks: game.failureMarks.length,
+            feedback: document.querySelector('#level-hint').textContent,
+            hint: game.state.level.hint,
+            failureStyle: document.querySelector('#hud-info').classList.contains('failed'),
+          };
         });
-        if (marksAfterEdit !== 0) throw new Error('Failure highlights stayed after an edit');
+        if (afterEdit.marks !== 0 || afterEdit.failureStyle ||
+            afterEdit.feedback !== afterEdit.hint)
+          throw new Error(`Failure feedback stayed after an edit: ${JSON.stringify(afterEdit)}`);
       });
     if (name === 'blocks')
       await withPage(name, async page => {
@@ -853,18 +953,21 @@ try {
         });
         await page.waitForFunction(() => game.state.screen === 'result', {timeout: 30000});
         await nextPaintedFrame(page);
-        await checkResultCard(page);
+        await checkResultView(page);
         await checkBlockHits(page, '1280x800');
         await shot(page, 'block-hits-1280x800');
         // Squeezed or stretched rows change the blocks' size in board units, so after a resize the
-        // beam ends must move with them. 1280x500 squeezes rows; 667x375 stretches them.
-        for (const [width, height, squeezed] of [[1280, 500, true], [667, 375, false]]) {
+        // beam ends must move with them. The bare result view fits at normal scale in 667x375.
+        for (const [width, height, scale] of [
+          [1280, 500, 'squeezed'], [667, 375, 'normal'], [390, 844, 'stretched']
+        ]) {
           await page.setViewport({width, height, deviceScaleFactor: 1});
           await nextPaintedFrame(page);
           await nextPaintedFrame(page);
           const rowScale = await page.evaluate(() => game.boardRowScale);
-          const scaled = squeezed ? rowScale < .8 : rowScale > 1.2;
-          if (!scaled) throw new Error(`Rows were not ${squeezed ? 'squeezed' : 'stretched'} at ${width}x${height}: ${rowScale}`);
+          const scaled = scale === 'squeezed' ? rowScale < .8 :
+              scale === 'stretched' ? rowScale > 1.2 : rowScale >= .8 && rowScale <= 1.2;
+          if (!scaled) throw new Error(`Rows were not ${scale} at ${width}x${height}: ${rowScale}`);
           await checkBlockHits(page, `${width}x${height} after resize`);
           await shot(page, `block-hits-${width}x${height}`);
         }
@@ -889,9 +992,23 @@ try {
                                             }));
         if (details.screen !== 'result' || details.score <= 0 || details.time <= 180)
           throw new Error(`Rush did not score: ${JSON.stringify(details)}`);
-        await checkResultCard(page);
+        await checkResultView(page);
         await checkBoardFit(page);
         await shot(page, 'rush-win');
+        await checkNextLabel(page, 'Next cascade');
+        await page.evaluate(() => { game.state.rushTime = .05; });
+        await new Promise(resolve => setTimeout(resolve, 150));
+        const paused = await page.evaluate(() => ({
+          screen: game.state.screen,
+          time: game.state.rushTime,
+        }));
+        if (paused.screen !== 'result' || paused.time !== .05)
+          throw new Error(`Rush time changed while the timer was hidden: ${JSON.stringify(paused)}`);
+        await page.evaluate(() => { game.state.rushTime = 180; });
+        await page.click('#result-screen [data-action="next"]');
+        const nextBoard = await page.evaluate(() => ({screen: game.state.screen, level: game.state.level.id}));
+        if (nextBoard.screen !== 'game' || nextBoard.level !== 'rush-42-1')
+          throw new Error(`Next cascade did not load a new board: ${JSON.stringify(nextBoard)}`);
         await page.evaluate(() => { game.state.rushTime = .2; });
         await page.waitForFunction(() => game.state.screen === 'select', {timeout: 30000});
         await page.evaluate(() => {
@@ -977,7 +1094,22 @@ try {
             game.fire();
             game.skipAnimation();
           });
-          await checkResultCard(page);
+          await checkResultView(page);
+          if ((width === 390 && height === 844) || (width === 844 && height === 390)) {
+            await page.evaluate(() => {
+              const result = document.getElementById('result-screen');
+              result.style.paddingBottom = '50px';
+              result.style.paddingRight = '50px';
+              window.dispatchEvent(new Event('resize'));
+            });
+            await checkResultView(page);
+            await page.evaluate(() => {
+              const result = document.getElementById('result-screen');
+              result.style.paddingBottom = '';
+              result.style.paddingRight = '';
+              window.dispatchEvent(new Event('resize'));
+            });
+          }
           await checkTouchControls(page);
           await shot(page, `result-${width}x${height}`);
           if (width === 390) await shot(page, 'win-390x844');
@@ -989,7 +1121,7 @@ try {
               game.fire();
               game.skipAnimation();
             });
-            await checkRushTimer(page);
+            await checkResultView(page);
             await checkTouchControls(page);
             await shot(page, `rush-result-${width}x${height}`);
           }
@@ -1026,10 +1158,7 @@ try {
         });
         if (await page.evaluate(() => game.state.screen) !== 'result')
           throw new Error('Storage failure blocked win');
-        await checkResultCard(page);
-        const saveStatus = await page.$eval('#result-save-status', element => element.textContent);
-        if (!saveStatus.includes('could not be saved'))
-          throw new Error(`Storage failure status missing: ${saveStatus}`);
+        await checkResultView(page, true);
         await checkBoardFit(page);
         await shot(page, 'storage-failure');
       }, 900, 600, true);

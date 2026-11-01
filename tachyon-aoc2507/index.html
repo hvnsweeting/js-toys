@@ -54,6 +54,7 @@
         <p>One beam. Infinite paths. Guide the light through a field of crystal splitters.</p>
         <div class="menu-actions">
           <button data-action="play" class="primary">Play campaign</button>
+          <button data-action="timeline">Part 2: Timelines</button>
           <button data-action="rush">Cascade Rush</button>
           <button data-action="help">How to play</button>
         </div>
@@ -70,8 +71,8 @@
       <div class="selection-panel">
         <div class="screen-heading">
           <div>
-            <span class="eyebrow">CHOOSE YOUR SIGNAL</span>
-            <h2>Campaign</h2>
+            <span id="select-label" class="eyebrow">CHOOSE YOUR SIGNAL</span>
+            <h2 id="select-title">Campaign</h2>
           </div>
           <button data-action="menu">Back</button>
         </div>
@@ -92,6 +93,7 @@
         </div>
         <p>A beam falls one row at a time. A crystal splitter sends it left and right. Adjacent crystals and metal blocks stop a side branch.</p>
         <p>Light every gold target. Keep red voids dark. A detector's number counts all paths that reach it, even when paths merge.</p>
+        <p>In Part 2, place crystals to make the exact number of exit timelines shown on the board. Paths that meet still count separately.</p>
         <p>Place the fewest pieces you can. Fire as often as you like. Fire again to skip the animation.</p>
         <p class="puzzle-source">Based on <a href="https://adventofcode.com/2025/day/7" target="_blank" rel="noopener">Advent of Code 2025, day 7</a>.</p>
         <button data-action="play" class="primary">Let's play</button>
@@ -110,7 +112,7 @@
           <small id="rush-score">0 points</small>
         </div>
       </div>
-      <p id="level-hint"></p>
+      <p id="level-hint" role="status" aria-live="polite"></p>
       <div class="hud-foot">
         <span id="pointer-hint">Click a cell to place a piece</span>
         <span id="board-stats">0 splits · 0 timelines</span>
@@ -140,18 +142,7 @@
     </section>
 
     <section id="result-screen" class="screen hidden">
-      <div class="dialog result">
-        <span class="eyebrow">SIGNAL STABLE</span>
-        <h2 id="result-title">Cascade complete</h2>
-        <div id="star-list"></div>
-        <p id="result-summary"></p>
-        <p id="result-save-status" role="status"></p>
-        <div class="menu-actions">
-          <button data-action="next" class="primary">Next level</button>
-          <button data-action="retry">Retry</button>
-          <button data-action="menu">Menu</button>
-        </div>
-      </div>
+      <button id="result-next" data-action="next" class="primary">Next level</button>
     </section>
 
     <div id="toast" role="status" aria-live="polite"></div>

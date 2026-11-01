@@ -6,10 +6,13 @@ export const touchSizes = [
 
 export const screenshotNames = {
   title: ['title-1280x800', 'select-1280x800', 'help-1280x800'],
+  timeline: ['timeline-1280x800', 'timeline-390x844', 'timeline-844x390',
+    'timeline-final-390x844'],
   input: [],
   campaign: ['win-1280x800'],
   void: ['void-failure', 'dark-target-failure'],
-  blocks: ['block-hits-1280x800', 'block-hits-1280x500', 'block-hits-667x375'],
+  blocks: ['block-hits-1280x800', 'block-hits-1280x500', 'block-hits-667x375',
+    'block-hits-390x844'],
   rush: ['rush-win'],
   sizes: [
     'game-1280x800', 'game-1100x750', 'game-900x600', 'win-390x844',

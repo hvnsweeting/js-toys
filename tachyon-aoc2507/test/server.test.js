@@ -10,6 +10,8 @@ for (const api of [path.posix, path.win32]) {
     const root = api.resolve('game');
     assert.equal(resolvePublicPath(root, '/', api).status, 200);
     assert.equal(resolvePublicPath(root, '/src/main.js', api).status, 200);
+    assert.equal(resolvePublicPath(root, '/timeline-lab.html', api).status, 200);
+    assert.equal(resolvePublicPath(root, '/timeline-lab.css', api).status, 403);
     for (const route
              of ['/package.json', '/src/../package.json', '/src/..%5cpackage.json', '/%E0%A4%A',
                  '/assets/../../index.html']) {

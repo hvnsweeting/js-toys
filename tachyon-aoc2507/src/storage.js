@@ -1,4 +1,5 @@
 export const STORAGE_KEY = 'tachyon-cascade-v1';
+export const LEGACY_TIMELINE_KEY = 'tachyon-timeline-lab-v1';
 export const BACKUP_KEY = `${STORAGE_KEY}-backup`;
 const BACKUP_LIMIT = 3;
 const settingsBaseline = new WeakMap();
@@ -27,7 +28,7 @@ export function emptyProfile() {
 function validRecords(value, upperBound) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return Object.fromEntries(Object.entries(value).filter(
-      ([key, number]) => /^[abc][1-5]$/.test(key) && Number.isInteger(number) && number >= 0 &&
+      ([key, number]) => /^(?:[abc][1-5]|t[1-6])$/.test(key) && Number.isInteger(number) && number >= 0 &&
           number <= upperBound));
 }
 
@@ -40,7 +41,7 @@ export function validateProfile(raw) {
       !Array.isArray(raw.bonusReached)) {
     clean.bonusReached = Object.fromEntries(
         Object.entries(raw.bonusReached)
-            .filter(([key, value]) => /^[abc][1-5]$/.test(key) && value === true));
+            .filter(([key, value]) => /^(?:[abc][1-5]|t[1-6])$/.test(key) && value === true));
   }
   if (Number.isInteger(raw.rushBest) && raw.rushBest >= 0) clean.rushBest = raw.rushBest;
   if (typeof raw.muteMusic === 'boolean') clean.muteMusic = raw.muteMusic;
@@ -199,4 +200,25 @@ export function saveProfile(storage, profile, notify = () => {}) {
     notify('Progress could not be saved. Storage may be full or disabled.');
     return false;
   }
+}
+
+export function importTimelineProgress(storage, profile, notify = () => {}) {
+  let raw;
+  try {
+    raw = storage.getItem(LEGACY_TIMELINE_KEY);
+  } catch {
+    return false;
+  }
+  const completed = Number(raw);
+  if (raw === null || !Number.isInteger(completed) || completed < 1 || completed > 6)
+    return false;
+  let changed = false;
+  for (let index = 1; index <= completed; index++) {
+    const id = `t${index}`;
+    if ((profile.stars[id] ?? 0) > 0) continue;
+    profile.stars[id] = 1;
+    changed = true;
+  }
+  if (changed) saveProfile(storage, profile, notify);
+  return changed;
 }

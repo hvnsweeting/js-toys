@@ -537,44 +537,16 @@ button:focus-visible {
   color: #e8d699;
 }
 
-.result {
-  width: min(430px,100%);
-  max-height: 100%;
-  overflow-y: auto;
-  margin: 0;
-}
-
-/* Keep the card above the HUD so the Rush timer and score stay visible. */
 #result-screen {
-  padding-top: calc(var(--hud-info-height, 0px) + 16px);
-  padding-bottom: calc(var(--hud-height, 0px) + 16px);
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px))
+      max(16px, env(safe-area-inset-bottom, 0px))
+      max(16px, env(safe-area-inset-left, 0px));
 }
 
-.result h2 {
-  color: #f3e2af;
-}
-
-#result-save-status:not(:empty) {
-  color: #ff9dab;
-  font-size: 12px;
-  margin: 0 0 8px;
-}
-
-#star-list {
-  display: grid;
-  gap: 8px;
-}
-
-#star-list div {
-  padding: 9px 13px;
-  border-radius: 8px;
-  background: #153348;
-  color: #bad6e1;
-}
-
-#star-list .earned {
-  color: #ffe6a1;
-  background: #4d3d1d;
+#result-next {
+  min-width: 145px;
 }
 
 #hud {
@@ -622,6 +594,16 @@ button:focus-visible {
   color: #abc9d5;
   font-size: 13px;
   margin: 2px 0 0;
+}
+
+#hud-info.failed {
+  background: linear-gradient(180deg,#241b28f2,#171d2de8);
+  border-bottom-color: #f4a97b;
+}
+
+#hud-info.failed #level-hint {
+  color: #ffe2bf;
+  font-weight: 700;
 }
 
 .hud-tools {
@@ -822,38 +804,6 @@ kbd {
     padding: 20px;
   }
 
-  #result-screen {
-    align-items: flex-end;
-    padding: 8px 8px max(8px, env(safe-area-inset-bottom, 0px));
-  }
-
-  #result-screen .result {
-    width: 100%;
-    padding: 14px;
-  }
-
-  #result-screen h2 {
-    font-size: 22px;
-    margin: 3px 0 9px;
-  }
-
-  #result-screen #star-list {
-    gap: 4px;
-  }
-
-  #result-screen #star-list div {
-    padding: 5px 8px;
-    font-size: 12px;
-  }
-
-  #result-screen .menu-actions {
-    margin-top: 9px;
-  }
-
-  #result-screen .menu-actions button {
-    min-width: 0;
-  }
-
   .dialog p {
     font-size: 13px;
   }
@@ -963,48 +913,6 @@ kbd {
 
 }
 
-/* Short landscape windows: the card must fit between the top bar and the HUD, because the Rush
-   timer keeps running while it is shown. */
-@media(min-width:701px) and (max-height:760px) {
-  #result-screen {
-    padding-top: calc(var(--hud-info-height, 0px) + 10px);
-    padding-bottom: calc(var(--hud-height, 0px) + 10px);
-  }
-
-  #result-screen .result {
-    padding: 14px 18px;
-  }
-
-  #result-screen h2 {
-    font-size: 22px;
-    margin: 3px 0 8px;
-  }
-
-  #result-screen #star-list {
-    gap: 4px;
-  }
-
-  #result-screen #star-list div {
-    padding: 4px 10px;
-    font-size: 13px;
-  }
-
-  #result-screen p {
-    margin: 6px 0;
-    font-size: 13px;
-  }
-
-  #result-screen .menu-actions {
-    margin-top: 8px;
-    flex-wrap: nowrap;
-  }
-
-  #result-screen .menu-actions button {
-    min-width: 0;
-    padding: 7px 12px;
-  }
-}
-
 @media(min-width:701px) and (max-width:1199px) and (orientation:landscape) {
   .screen {
     padding: 12px max(12px, env(safe-area-inset-right, 0px))
@@ -1024,9 +932,6 @@ kbd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  #result-screen .result {
-    width: min(40vw, 430px);
-  }
 }
 
 /* Phones: five tiles per row would leave about 50 px per name, so they get three. */
@@ -1162,57 +1067,6 @@ kbd {
     margin-top: 2px;
   }
 
-  #result-screen {
-    align-items: flex-start;
-    padding-top: 5px;
-    padding-bottom: calc(var(--hud-height, 0px) + 5px);
-  }
-
-  #result-screen .result {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    max-height: 100%;
-    overflow: hidden;
-  }
-
-  /* On a phone held sideways the card is about 200 px tall. The stars are what the player came for,
-     so keep them and drop the summary line, which the HUD footer already shows. */
-  #result-screen .eyebrow,
-  #result-screen #result-summary {
-    display: none;
-  }
-
-  #result-screen h2 {
-    font-size: 18px;
-    margin: 0 0 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  #result-screen #star-list {
-    flex: none;
-    gap: 3px;
-  }
-
-  #result-screen #star-list div {
-    padding: 2px 8px;
-    font-size: 12px;
-    line-height: 1.2;
-    white-space: normal;
-    overflow-wrap: break-word;
-  }
-
-  #result-screen .menu-actions,
-  #result-screen #result-summary,
-  #result-screen #result-save-status {
-    flex: none;
-  }
-
-  #result-screen #result-save-status:empty {
-    display: none;
-  }
 }
 
 @media(max-height:500px) and (orientation:landscape) {
@@ -1304,24 +1158,4 @@ kbd {
     margin-top: 4px;
   }
 
-  #result-screen {
-    right: var(--hud-column-width);
-    padding: 5px 8px;
-  }
-
-  #result-screen .result {
-    width: min(31vw, 260px);
-    padding: 12px;
-  }
-
-  #result-screen .menu-actions {
-    gap: 5px;
-  }
-
-  #result-screen .menu-actions button {
-    flex: 1;
-    min-width: 0;
-    padding: 5px;
-    font-size: 11px;
-  }
 }

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  STORAGE_KEY, BACKUP_KEY, emptyProfile, loadProfile, saveProfile, validateProfile
+  STORAGE_KEY, BACKUP_KEY, LEGACY_TIMELINE_KEY, emptyProfile, loadProfile, saveProfile,
+  validateProfile, importTimelineProgress
 } from '../src/storage.js';
 
 function memory() {
@@ -24,6 +25,36 @@ test('invalid fields are recovered and raw data backed up', () => {
   assert.equal(profile.volume, 0.7);
   assert.equal(store.getItem(BACKUP_KEY), raw);
   assert.equal(validateProfile({stars: {a1: 2}}).profile.stars.a1, 2);
+});
+test('old Timeline Lab completion unlocks matching Part 2 levels once', () => {
+  for (const completed of [0, 1, 6]) {
+    const store = memory();
+    store.setItem(LEGACY_TIMELINE_KEY, String(completed));
+    const profile = loadProfile(store);
+    const changed = importTimelineProgress(store, profile);
+    assert.equal(changed, completed > 0);
+    const expected = Object.fromEntries(Array.from({length: completed}, (_, index) =>
+      [`t${index + 1}`, 1]));
+    assert.deepEqual(profile.stars, expected);
+    assert.deepEqual(loadProfile(store).stars, expected);
+    assert.equal(store.getItem(LEGACY_TIMELINE_KEY), String(completed));
+    assert.equal(importTimelineProgress(store, profile), false);
+  }
+});
+test('old Timeline Lab completion keeps higher stars and ignores malformed counts', () => {
+  const store = memory();
+  const profile = emptyProfile();
+  profile.stars.t1 = 3;
+  profile.stars.t2 = 2;
+  assert.equal(saveProfile(store, profile), true);
+  store.setItem(LEGACY_TIMELINE_KEY, '3');
+  assert.equal(importTimelineProgress(store, profile), true);
+  assert.deepEqual(loadProfile(store).stars, {t1: 3, t2: 2, t3: 1});
+  for (const raw of ['-1', '7', '1.5', 'bad']) {
+    store.setItem(LEGACY_TIMELINE_KEY, raw);
+    assert.equal(importTimelineProgress(store, profile), false, raw);
+    assert.deepEqual(loadProfile(store).stars, {t1: 3, t2: 2, t3: 1});
+  }
 });
 test('saving from two tabs merges progress and keeps this tab settings', () => {
   const store = memory();

@@ -1,8 +1,12 @@
 import {AOC_EXAMPLE, simulate, checkWin, computeStars} from './sim.js';
 import {levels, levelById} from './levels.js';
+import {part2Levels, part2ById} from './part2-levels.js';
 import {generateRushLevel} from './generator.js';
-import {emptyProfile, loadProfile, saveProfile, STORAGE_KEY} from './storage.js';
-import {showToast, clearToast, showScreen, renderSelection, renderHud, renderResult} from './ui.js';
+import {
+  emptyProfile, loadProfile, saveProfile, importTimelineProgress,
+  STORAGE_KEY, LEGACY_TIMELINE_KEY
+} from './storage.js';
+import {showToast, clearToast, showScreen, renderSelection, renderHud} from './ui.js';
 import {createScene} from './render/scene.js';
 import {accessStorage, shortcutAllowed, wallSeconds} from './runtime.js';
 import {rushWinScore, rushTimeAfterElapsed} from './rush.js';
@@ -16,6 +20,7 @@ const state = {
   placements: [],
   selected: 'splitter',
   result: null,
+  failureReason: '',
   revealRow: 0,
   clock: 0,
   runSeconds: 0,
@@ -71,15 +76,13 @@ function coveredArea(mode) {
     return {left: 0, right: 0, top: 0, bottom: window.innerHeight - panel.getBoundingClientRect().top + 12};
   }
   if (shortLandscape && mode === 'game') return {left: 0, right: columnWidth, top: 0, bottom: 0};
-  if (shortLandscape && mode === 'result') {
-    const card = document.querySelector('.result').getBoundingClientRect();
-    return {left: card.right + 12, right: columnWidth, top: 0, bottom: 0};
-  }
   if (mode === 'game') return {left: 0, top: infoHeight, bottom: hudHeight};
   if (mode === 'result') {
-    const card = document.querySelector('.result').getBoundingClientRect();
-    if (window.innerWidth <= 700) return {left: 0, top: infoHeight, bottom: card.height + 12};
-    return {left: card.right + 24, top: infoHeight, bottom: 0};
+    const next = document.getElementById('result-next').getBoundingClientRect();
+    const app = document.getElementById('app').getBoundingClientRect();
+    if (window.innerWidth <= window.innerHeight)
+      return {left: 0, top: 0, bottom: app.bottom - next.top + 12};
+    return {left: 0, top: 0, right: app.right - next.left + 12, bottom: 0};
   }
   if (window.innerWidth <= 700) return {left: 0, bottom: 0};
   if (mode === 'title') return {left: title.getBoundingClientRect().right + 24, bottom: 0};
@@ -190,8 +193,8 @@ function switchScreen(name) {
   document.getElementById('audio-settings').classList.add('hidden');
   view.setViewMode(name);
   updateMusic();
-  if (name === 'select') renderSelection(profile, loadLevel);
-  if (name === 'game' || name === 'result') renderHud(state, profile);
+  if (name === 'select') renderSelection(profile, loadLevel, state.mode);
+  if (name === 'game') renderHud(state, profile);
   else document.getElementById('top-status').textContent = 'AOC 2025 · DAY 7';
 }
 function showTitle() {
@@ -214,15 +217,17 @@ function showTitle() {
 // release, so a press held through a run (fired from the keyboard) cannot edit after it.
 let editSession = 0;
 function loadLevel(id) {
-  const level = typeof id === 'string' ? levelById[id] : id;
+  const level = typeof id === 'string' ? levelById[id] ?? part2ById[id] : id;
   if (!level) throw new Error(`Unknown level: ${id}`);
   editSession++;
   state.level = level;
-  state.mode = level.id.startsWith('rush-') ? 'rush' : 'campaign';
+  state.mode = level.id.startsWith('rush-') ? 'rush' :
+      level.timelineGoal != null ? 'timeline' : 'campaign';
   state.phase = 'editing';
   state.placements = [];
   state.selected = level.inventory.splitter ? 'splitter' : 'block';
   state.result = null;
+  state.failureReason = '';
   state.revealRow = -1;
   view.setLevel(level);
   view.setGhost(null);
@@ -254,6 +259,7 @@ function canEdit() {
 }
 function clearResult() {
   state.result = null;
+  state.failureReason = '';
   state.revealRow = -1;
   view.setBeam(null, 0);
 }
@@ -312,6 +318,7 @@ function fire() {
   }
   if (state.phase !== 'editing') return;
   editSession++;
+  state.failureReason = '';
   state.result = simulate(state.level, state.placements);
   state.phase = 'running';
   state.revealRow = 0;
@@ -339,7 +346,7 @@ function finishRun() {
   const outcome = checkWin(state.level, state.result);
   if (!outcome.won) {
     state.phase = 'editing';
-    showToast(outcome.reason);
+    state.failureReason = outcome.reason;
     view.feedback('fail', state.clock, outcome.failures);
     const hitVoid = outcome.failures.some(failure => failure.kind === 'void');
     effect(hitVoid ? 'voidHit' : 'fail');
@@ -350,7 +357,7 @@ function finishRun() {
   view.feedback('win', state.clock);
   const stars = computeStars(state.level, state.result, state.placements.length);
   let saved = true;
-  if (state.mode === 'campaign') {
+  if (state.mode !== 'rush') {
     const id = state.level.id;
     profile.bestPieces[id] = Math.min(profile.bestPieces[id] ?? Infinity, state.placements.length);
     if (stars[2]) profile.bonusReached[id] = true;
@@ -366,11 +373,16 @@ function finishRun() {
   }
   effect('targetLit');
   effect('win', stars.filter(Boolean).length);
-  renderResult(state.level, state.result, state.placements, stars, state.mode, !saved);
-  if (state.mode === 'campaign') {
-    const next = levels[levels.findIndex(level => level.id === state.level.id) + 1];
-    if (!next || !sectorUnlocked(next.sector)) {
-      document.querySelector('[data-action="next"]').textContent = 'Level select';
+  clearToast();
+  if (!saved) showToast('Progress could not be saved. Storage may be full or disabled.');
+  document.getElementById('result-next').textContent =
+      state.mode === 'rush' ? 'Next cascade' : 'Next level';
+  if (state.mode !== 'rush') {
+    const campaign = state.mode === 'campaign';
+    const sequence = campaign ? levels : part2Levels;
+    const next = sequence[sequence.findIndex(level => level.id === state.level.id) + 1];
+    if (!next || (campaign && !sectorUnlocked(next.sector))) {
+      document.getElementById('result-next').textContent = 'Level select';
     }
   }
   switchScreen('result');
@@ -404,13 +416,15 @@ function nextLevel() {
     renderHud(state, profile);
     return;
   }
-  const index = levels.findIndex(level => level.id === state.level.id);
-  if (index >= levels.length - 1) {
+  const campaign = state.mode === 'campaign';
+  const sequence = campaign ? levels : part2Levels;
+  const index = sequence.findIndex(level => level.id === state.level.id);
+  if (index >= sequence.length - 1) {
     switchScreen('select');
     return;
   }
-  const next = levels[index + 1];
-  if (!sectorUnlocked(next.sector)) {
+  const next = sequence[index + 1];
+  if (campaign && !sectorUnlocked(next.sector)) {
     switchScreen('select');
     showToast(`Solve four Sector ${state.level.sector} levels to unlock Sector ${next.sector}.`);
     return;
@@ -425,13 +439,18 @@ function endRush() {
 }
 function onAction(action) {
   effect('click');
-  if (action === 'play') switchScreen('select');
+  if (action === 'play') {
+    state.mode = 'campaign';
+    switchScreen('select');
+  }
+  if (action === 'timeline') {
+    state.mode = 'timeline';
+    switchScreen('select');
+  }
   if (action === 'rush') startRush();
   if (action === 'help') switchScreen('help');
   if (action === 'menu') showTitle();
   if (action === 'next') nextLevel();
-  // Rush boards are not replayed: a solved board already paid its score and time.
-  if (action === 'retry' && state.mode !== 'rush') loadLevel(state.level.id);
   if (action === 'fire') fire();
   if (action === 'undo') undo();
   if (action === 'reset') reset();
@@ -456,7 +475,7 @@ function frame() {
       document.getElementById('attract-timelines').textContent = timelines;
     }
   }
-  if (state.mode === 'rush' && (state.screen === 'game' || state.screen === 'result')) {
+  if (state.mode === 'rush' && state.screen === 'game') {
     state.rushTime = rushTimeAfterElapsed(state.rushTime, now, previousFrame).time;
     document.getElementById('rush-timer').textContent =
         `${Math.floor(Math.ceil(state.rushTime) / 60)}:${
@@ -501,8 +520,13 @@ function boot() {
   try {
     storage = accessStorage(() => localStorage, showToast);
     profile = storage ? loadProfile(storage, showToast) : emptyProfile();
+    if (storage) importTimelineProgress(storage, profile, showToast);
     view = createScene(document.getElementById('stage'), coveredArea);
     showTitle();
+    if (window.location.hash === '#timeline') {
+      state.mode = 'timeline';
+      switchScreen('select');
+    }
     applyVolume();
     document.documentElement.classList.toggle('touch-capable', touchCapable);
     document.addEventListener('pointerup', onAudioGesture, {passive: true});
@@ -654,12 +678,13 @@ function boot() {
       if (key === 'z') undo();
     });
     window.addEventListener('storage', event => {
-      if (event.key === STORAGE_KEY || event.key === null) {
+      if (event.key === STORAGE_KEY || event.key === LEGACY_TIMELINE_KEY || event.key === null) {
         profile = storage ? loadProfile(storage, showToast) : emptyProfile();
+        if (storage) importTimelineProgress(storage, profile, showToast);
         muteRestore = null;
         applyVolume();
-        if (state.screen === 'select') renderSelection(profile, loadLevel);
-        if (state.screen === 'game' || state.screen === 'result') renderHud(state, profile);
+        if (state.screen === 'select') renderSelection(profile, loadLevel, state.mode);
+        if (state.screen === 'game') renderHud(state, profile);
         if (state.screen === 'title')
           document.getElementById('rush-best').textContent =
               `Best Rush score: ${profile.rushBest}`;
@@ -675,6 +700,7 @@ function boot() {
       skipAnimation,
       startRush,
       levels,
+      part2Levels,
       cellScreenPosition(row, col) {
         return view.cellScreenPosition(row, col);
       },

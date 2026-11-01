@@ -22,6 +22,7 @@ make serve      # whole arcade at http://127.0.0.1:8000/tachyon-aoc2507/
 - Keys: `1` splitter, `2` block, `Space` or `F` fire, `Z` undo, `R` reset, `M` mute, `Esc` menu. While a button has keyboard focus, `Space` presses that button instead. The title in the top bar also opens the menu.
 - Campaign: 15 levels in three sectors; solving four levels in a sector unlocks the next. Stars: win, par pieces or fewer, timeline bonus.
 - Cascade Rush: three minutes of generated boards. A solved board adds 20 seconds and score; there is no skip.
+- Part 2: Timelines: six levels on the same board, with the same controls and music. Place crystals, fire the beam, and reach the exact number of exit timelines. The levels build toward the original example's 40 timelines. Progress shares the campaign save; completed rounds from the old Timeline Lab unlock the corresponding levels. The old `timeline-lab.html` address opens this mode.
 
 ## Development
 

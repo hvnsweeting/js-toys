@@ -118,10 +118,10 @@
         color: var(--accent-yellow);
       }
 
-      /* Games Grid (4x1 desktop, 2x2 mobile) */
+      /* Games Grid */
       .grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 20px;
         width: 100%;
         margin-bottom: 32px;
@@ -176,6 +176,21 @@
         margin-bottom: 16px;
         filter: drop-shadow(3px 3px 0 #000);
         transition: transform 0.15s ease;
+      }
+
+      .card-icon-jigsaw .emoji-glyph {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+
+      .card-icon-jigsaw svg {
+        display: block;
+        width: 1em;
+        height: 1em;
+        filter: drop-shadow(3px 3px 0 #000);
       }
 
       /* Card Titles */
@@ -333,6 +348,28 @@
         box-shadow: 0 0 8px #ff9f1c;
       }
 
+      .card-witch:hover {
+        border-color: #ff8c1a;
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(255, 140, 26, 0.5);
+      }
+      .card-witch:hover .card-title { color: #ff8c1a; }
+      .card-witch:hover .card-btn {
+        background: #ff8c1a;
+        color: #000;
+        border-color: #fff;
+        box-shadow: 0 0 8px #ff8c1a;
+      }
+
+      .card-jigsaw:hover { border-color: #eab676; box-shadow: 0 -4px 0 #000, 0 4px 0 #000, -4px 0 #000, 4px 0 #000, 8px 8px 0 #000, 0 0 16px #eab67688; }
+      .card-jigsaw:hover .card-title { color: #eab676; }
+      .card-jigsaw:hover .card-btn { background: #eab676; color: #000; border-color: #fff; }
+
       /* Hover & Press Animations */
       .card:hover {
         transform: translateY(-6px) scale(1.02);
@@ -378,7 +415,7 @@
         line-height: 1.8;
       }
 
-      /* Responsive Breakpoints: 2x2 on Mobile, 4x1 on Desktop */
+      /* Responsive Breakpoints */
       @media (max-width: 860px) {
         .grid {
           grid-template-columns: repeat(2, 1fr);
@@ -531,6 +568,24 @@
           <div class="card-icon" role="img" aria-label="Crystal">💎</div>
           <h2 class="card-title">Tachyon Cascade</h2>
           <p class="card-desc">Split the beam, light the targets (Advent of Code 2025, day 7)</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 6. Flappy Witch -->
+        <a class="card card-witch" href="./flappywitch/index.html">
+          <span class="card-tag">GAME 06</span>
+          <div class="card-icon" role="img" aria-label="Pumpkin">🎃</div>
+          <h2 class="card-title">Flappy Witch</h2>
+          <p class="card-desc">Fly through the moonlit gates!</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 7. Jigsaw -->
+        <a class="card card-jigsaw" href="./jigsaw/index.html">
+          <span class="card-tag">GAME 07</span>
+          <div class="card-icon card-icon-jigsaw" role="img" aria-label="Puzzle piece"><span class="emoji-glyph">🧩</span><svg viewBox="0 0 52 52" aria-hidden="true" focusable="false"><path d="M6 6h15c-1 5 1 8 5 8s6-3 5-8h15v15c-5-1-8 1-8 5s3 6 8 5v15H31c1-5-1-8-5-8s-6 3-5 8H6V31c5 1 8-1 8-5s-3-6-8-5z" fill="#eab676" stroke="#192032" stroke-width="2.5" stroke-linejoin="round"/></svg></div>
+          <h2 class="card-title">Jigsaw</h2>
+          <p class="card-desc">Piece together famous paintings</p>
           <div class="card-btn">PLAY ▶</div>
         </a>
       </nav>

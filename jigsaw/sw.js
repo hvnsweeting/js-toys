@@ -6,7 +6,7 @@
 // changes. Both are written by tools/stamp-sw.mjs; a unit test fails while either is out of date.
 // A new VERSION changes this file, which is how browsers notice an update.
 
-const VERSION = '69fbd27cf7491c17';
+const VERSION = '60e0f1e9b3dbfd91';
 
 // Paths relative to this file. './' is the page as the app's start address opens it.
 const FILES = {
@@ -16,8 +16,8 @@ const FILES = {
   'js/app.js': 'fc8f968eaa501a16dd12583ffdfb63d8a91d0bb1f97183c685fd4dfbe50ad886',
   'js/core.js': '172df727c34e69757afefe9490c184661800e35d488e201eeea0d9bb2b980344',
   'js/render.js': '0c2ec8b59a50c493a7b7b7af806bd7b570d69f2ab688f709b167b8bcee76f507',
-  'js/music.js': '5565ed68ed7b2e1dec03bacf4e03cd6a02fa0d5ee7cbb387a7f7ee086071f425',
-  'js/musicScore.js': 'cd9a1818aaebb27b00caf6e3c965bb9ea888398558652d48884f9a6d0da5bbb6',
+  'js/music.js': '6c78575bdab869bb41c62f2acdc98044676e50898b20bfe97c0496d644b134fb',
+  'js/musicScore.js': 'dbc650adc99ed61d29112530684bd6b2dd2a47bc6da8b242a43495c054770643',
   'js/effects.js': 'b2ce713e4321eb02d1e8c04e0e6b409f8de9432bcb8160a11893fd484c6beb00',
   'manifest.webmanifest': 'e9fef8dff6f90be04166b8fb208be9dfea14c23bb9481d86fa7bebefb770274d',
   'icons/icon-192.png': 'a2733b970aae8b8d897c93111103d7d31d60425d2e774e3172fae003d6d75ee8',

@@ -1,4 +1,4 @@
-export const MUSIC_TEMPO = 72;
+export const MUSIC_TEMPO = 116;
 export const STEPS_PER_BAR = 16;
 export const PHRASE_BARS = 32;
 export const PITCH_RANGES = Object.freeze({
@@ -8,19 +8,20 @@ export const PITCH_RANGES = Object.freeze({
   box: [523, 1175],
 });
 
-// MIDI notes keep the harmony readable while frequency conversion stays in one place.
+// A cheerful, bouncy major/pop progression keeps the arcade puzzle fun and kid-friendly.
 const harmony = [
-  { name: 'Fmaj9', root: 53, notes: [65, 69, 72, 76, 79] },
-  { name: 'Em7', root: 52, notes: [64, 67, 71, 74, 79] },
-  { name: 'Dm9', root: 50, notes: [62, 65, 69, 72, 76] },
-  { name: 'Cmaj9', root: 48, notes: [60, 64, 67, 71, 74] },
+  { name: 'Cmaj', root: 48, notes: [60, 64, 67, 69, 72] },
+  { name: 'G6', root: 43, notes: [55, 59, 62, 64, 67] },
   { name: 'Am7', root: 45, notes: [57, 60, 64, 67, 72] },
-  { name: 'G6add9', root: 43, notes: [55, 59, 62, 64, 69] },
-  { name: 'Fmaj9', root: 53, notes: [65, 69, 72, 76, 79] },
-  { name: 'Cmaj9', root: 48, notes: [60, 64, 67, 71, 74] },
+  { name: 'F6', root: 53, notes: [65, 69, 72, 74, 79] },
+  { name: 'Cmaj', root: 48, notes: [60, 64, 67, 72, 76] },
+  { name: 'Dm7', root: 50, notes: [62, 65, 69, 72, 76] },
+  { name: 'G6', root: 43, notes: [55, 59, 62, 67, 71] },
+  { name: 'Cmaj', root: 48, notes: [60, 64, 67, 69, 72] },
 ];
 const scale = new Set([0, 2, 4, 5, 7, 9, 11]);
 const frequency = (midi) => 440 * 2 ** ((midi - 69) / 12);
+
 function hash(seed, bar, salt) {
   let value = (seed ^ Math.imul(bar + 1, 0x9e3779b1) ^ salt) >>> 0;
   value ^= value >>> 16;
@@ -35,45 +36,119 @@ export function barPlan(bar, seed = 17) {
   const pass = Math.floor(position / harmony.length);
   const chord = harmony[chordIndex];
   const voicing = (pass + hash(seed, chordIndex, 19) % 4) % 4;
-  const melodyNotes = chord.notes.map((note) => note < 72 ? note + 12 : note)
-    .filter((note) => note >= 72 && note <= 84);
-  const melodyChoice = [0, 1, 2].map((index) =>
+
+  const melodyNotes = chord.notes.map((note) => {
+    let n = note;
+    while (n < 72) n += 12;
+    while (n > 84) n -= 12;
+    return n;
+  }).filter((note, idx, arr) => arr.indexOf(note) === idx);
+
+  const melodyChoice = [0, 1, 2, 3, 4, 5].map((index) =>
     melodyNotes[hash(seed, position, index * 173 + 31) % melodyNotes.length]);
-  const melodyOn = (chordIndex + pass) % 4 !== 3;
-  const layers = ['piano', 'pad', 'bass'];
-  if (melodyOn) layers.push('box');
-  return { chord: chord.name, root: chord.root, chordNotes: chord.notes,
-    scale: [...scale], voicing, melodyChoice, layers, pass };
+
+  // Layers vary across the 4 passes to build progression while keeping the lead active.
+  let layers;
+  if (pass === 0) {
+    layers = chordIndex < 4 ? ['piano', 'bass', 'box'] : ['piano', 'pad', 'bass', 'box'];
+  } else if (pass === 1) {
+    layers = ['piano', 'pad', 'bass', 'box'];
+  } else if (pass === 2) {
+    layers = chordIndex === 7 ? ['piano', 'pad', 'bass'] : ['piano', 'pad', 'bass', 'box'];
+  } else {
+    layers = chordIndex >= 6 ? ['piano', 'bass', 'box'] : ['piano', 'pad', 'bass', 'box'];
+  }
+
+  return {
+    chord: chord.name,
+    root: chord.root,
+    chordNotes: chord.notes,
+    scale: [...scale],
+    voicing,
+    melodyChoice,
+    layers,
+    pass,
+    position,
+  };
 }
 
 export function scoreEvents(bar, step, seed = 17) {
   const plan = barPlan(bar, seed);
   const events = [];
   const notes = plan.chordNotes;
-  if (step === 0 || step === 8) {
-    const index = (plan.voicing + (step === 8 ? 2 : 0)) % 4;
-    for (const note of [notes[index], notes[(index + 2) % 5], notes[4]]) {
-      events.push({ layer: 'piano', frequency: frequency(note < 60 ? note + 12 : note), duration: 1.25,
-        accent: step === 0 ? 1 : 0.62 });
+  const position = plan.position;
+
+  // 1. Chiptune Arpeggio (piano layer): crisp 16th/8th-note square staccato arpeggios on even steps
+  if (plan.layers.includes('piano') && step % 2 === 0) {
+    const pianoNotes = notes.map((n) => {
+      let note = n;
+      while (note < 60) note += 12;
+      while (note > 84) note -= 12;
+      return note;
+    });
+    const stepIndex = step / 2;
+    const arpIndex = (stepIndex + plan.voicing + position) % pianoNotes.length;
+    events.push({
+      layer: 'piano',
+      frequency: frequency(pianoNotes[arpIndex]),
+      duration: 0.18,
+      accent: step === 0 ? 0.88 : (step % 4 === 0 ? 0.72 : 0.58),
+    });
+  }
+
+  // 2. Warm Harmonic Backing (pad layer): gentle chord wash on step 0
+  if (plan.layers.includes('pad') && step === 0) {
+    const padNotes = notes.map((n) => {
+      let note = n;
+      while (note < 60) note += 12;
+      while (note > 79) note -= 12;
+      return note;
+    });
+    for (const note of [padNotes[0], padNotes[2 % padNotes.length]]) {
+      events.push({
+        layer: 'pad',
+        frequency: frequency(note),
+        duration: 1.8,
+        accent: 0.62,
+      });
     }
   }
-  if (step === 4 + (bar % 8)) {
-    events.push({ layer: 'piano', frequency: frequency(notes[plan.voicing] < 60 ?
-      notes[plan.voicing] + 12 : notes[plan.voicing]), duration: 0.55, accent: 0.34 });
+
+  // 3. Bouncy Chip Bass (bass layer): 4-on-the-floor groove on steps 0, 4, 8, 12 + hop on step 14
+  const isBassStep = step === 0 || step === 4 || step === 8 || step === 12 ||
+    (position % 2 === 1 && step === 14);
+  if (plan.layers.includes('bass') && isBassStep) {
+    const baseRoot = plan.root < 48 ? plan.root + 12 : plan.root;
+    let bassNote;
+    if (step === 0 || step === 8) {
+      bassNote = baseRoot;
+    } else if (step === 4 || step === 12) {
+      bassNote = baseRoot <= 55 ? baseRoot + 7 : baseRoot - 5;
+    } else {
+      // Step 14 playful hop note on alternate bars
+      bassNote = baseRoot <= 51 ? baseRoot + 12 : baseRoot + 5;
+    }
+    events.push({
+      layer: 'bass',
+      frequency: frequency(bassNote),
+      duration: 0.20,
+      accent: step === 0 ? 0.95 : 0.72,
+    });
   }
-  if (step === 0) {
-    for (const note of [notes[1], notes[3]])
-      events.push({ layer: 'pad', frequency: frequency(note < 60 ? note + 12 : note), duration: 3.2, accent: 1 });
+
+  // 4. Playful Lead Melody (box layer): lively chiptune lead
+  const melodySteps = [0, 3, 6, 8, 10, 12];
+  if (plan.layers.includes('box') && melodySteps.includes(step)) {
+    const mIndex = melodySteps.indexOf(step);
+    const note = plan.melodyChoice[mIndex % plan.melodyChoice.length];
+    events.push({
+      layer: 'box',
+      frequency: frequency(note),
+      note,
+      duration: 0.25,
+      accent: step === 0 || step === 8 ? 0.92 : 0.74,
+    });
   }
-  if (step === 0 || step === 10) {
-    const note = plan.root + 5 + (step === 10 ? 4 : 0);
-    events.push({ layer: 'bass', frequency: frequency(note), duration: 0.48,
-      accent: step === 0 ? 1 : 0.65 });
-  }
-  if (plan.layers.includes('box') && [2, 6, 12].includes(step)) {
-    const index = [2, 6, 12].indexOf(step);
-    events.push({ layer: 'box', frequency: frequency(plan.melodyChoice[index]),
-      note: plan.melodyChoice[index], duration: 0.8, accent: index === 0 ? 0.85 : 0.65 });
-  }
+
   return events;
 }

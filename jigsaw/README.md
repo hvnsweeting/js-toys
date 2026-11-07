@@ -20,13 +20,13 @@ For your own photo, choose an image, move and zoom the crop, then start. The pho
 
 ## Music and sound
 
-The original background piece plays after your first tap or click. It moves at 72 beats per minute
-through F major ninth, E minor seventh, D minor ninth, C major ninth, A minor seventh, G sixth
-with an added ninth, then returns through F and C. A soft electric piano, warm pad, light plucked
-bass, and occasional music box share a 32 bar phrase. Seeded voicings, melody notes, and instrument
-entries vary across its four passes. Music mutes only the background piece; Sound mutes both music
-and puzzle effects. Each choice is remembered. The music fades when the page is hidden and returns
-when it is visible again.
+The upbeat chiptune background piece plays after your first tap or click. It moves at 116 beats per minute
+through C major, G sixth, A minor seventh, F sixth, C major, D minor seventh, G sixth, and returns to C major.
+Bouncy square-wave chiptune arpeggios, punchy triangle chip bass with phone-friendly harmonics, warm pad backing,
+and a lively square-wave lead melody with playful pitch attack blips share a 32 bar phrase. Seeded voicings, melody
+choices, and instrument entries vary across its four passes. Music mutes only the background piece; Sound mutes both
+music and puzzle effects. Each choice is remembered. The music fades when the page is hidden and returns when it is
+visible again.
 
 ## Development
 

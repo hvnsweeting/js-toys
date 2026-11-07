@@ -2,14 +2,14 @@ import { MUSIC_TEMPO, STEPS_PER_BAR, PHRASE_BARS, scoreEvents } from './musicSco
 
 const LOOK_AHEAD = 0.22;
 const STEP_SECONDS = 60 / MUSIC_TEMPO / 4;
-const LEVELS = { piano: 0.16, pad: 0.055, bass: 0.14, box: 0.11 };
+const LEVELS = { piano: 0.18, pad: 0.085, bass: 0.30, box: 0.19 };
 
 export function createMusic(context, destination = context.destination, render = false) {
   const output = context.createGain();
   output.gain.value = render ? 1 : 0;
   const tone = context.createBiquadFilter();
   tone.type = 'lowpass';
-  tone.frequency.value = 3400;
+  tone.frequency.value = 4000;
   tone.Q.value = 0.5;
   tone.connect(output).connect(destination);
   const voices = new Set();
@@ -25,17 +25,31 @@ export function createMusic(context, destination = context.destination, render =
     const envelope = context.createGain();
     const duration = event.duration;
     const end = at + duration;
-    const attack = event.layer === 'pad' ? 0.24 : event.layer === 'piano' ? 0.012 : 0.008;
-    const release = event.layer === 'pad' ? 0.5 : 0.16;
+    const isPad = event.layer === 'pad';
+    const isPiano = event.layer === 'piano';
+    const isBox = event.layer === 'box';
+
+    const attack = isPad ? 0.20 : isPiano ? 0.005 : 0.006;
+    const release = isPad ? 0.40 : isPiano ? 0.06 : 0.08;
     const peak = LEVELS[event.layer] * event.accent;
-    source.type = event.layer === 'pad' ? 'sine' :
-      event.layer === 'box' ? 'sine' : 'triangle';
-    source.frequency.setValueAtTime(event.frequency, at);
+
+    // Authentic retro 8-bit chiptune waveforms
+    source.type = (isBox || isPiano) ? 'square' : 'triangle';
+
+    if (isBox) {
+      // Cute quick pitch blip on attack for bouncy chiptune lead feel
+      source.frequency.setValueAtTime(event.frequency * 0.98, at);
+      source.frequency.linearRampToValueAtTime(event.frequency, at + 0.012);
+    } else {
+      source.frequency.setValueAtTime(event.frequency, at);
+    }
+
     envelope.gain.setValueAtTime(0, at);
     envelope.gain.linearRampToValueAtTime(peak, at + attack);
-    envelope.gain.setValueAtTime(peak * (event.layer === 'pad' ? 0.7 : 0.35),
-      Math.max(at + attack, end - release));
+    const sustainRatio = isPad ? 0.65 : isPiano ? 0.40 : isBox ? 0.50 : 0.45;
+    envelope.gain.setValueAtTime(peak * sustainRatio, Math.max(at + attack, end - release));
     envelope.gain.linearRampToValueAtTime(0, end);
+
     source.connect(envelope).connect(tone);
     source.onended = () => {
       source.disconnect();
@@ -45,21 +59,22 @@ export function createMusic(context, destination = context.destination, render =
     voices.add(source);
     source.start(at);
     source.stop(end + 0.01);
+
     if (event.layer === 'bass') {
-      // A quiet upper partial makes the pluck audible on small speakers.
-      const upper = { ...event, frequency: event.frequency * 2, accent: event.accent * 0.32 };
+      // Upper partials make the punchy chip bass audible on phone speakers
+      const upper = { ...event, frequency: event.frequency * 2, accent: event.accent * 0.28 };
       renderUpper(upper, at);
-      renderUpper({ ...event, frequency: event.frequency * 3,
-        accent: event.accent * 0.16 }, at);
+      renderUpper({ ...event, frequency: event.frequency * 3, accent: event.accent * 0.14 }, at);
     }
   }
+
   function renderUpper(event, at) {
     const source = context.createOscillator();
     const gain = context.createGain();
-    source.type = 'sine';
+    source.type = 'triangle';
     source.frequency.value = event.frequency;
     gain.gain.setValueAtTime(0, at);
-    gain.gain.linearRampToValueAtTime(LEVELS.bass * event.accent, at + 0.008);
+    gain.gain.linearRampToValueAtTime(LEVELS.bass * event.accent, at + 0.006);
     gain.gain.exponentialRampToValueAtTime(0.0001, at + event.duration);
     source.connect(gain).connect(tone);
     source.onended = () => {
@@ -71,12 +86,14 @@ export function createMusic(context, destination = context.destination, render =
     source.start(at);
     source.stop(at + event.duration + 0.01);
   }
+
   function stopVoices() {
     const now = context.currentTime;
     for (const source of voices) {
       try { source.stop(now + 0.01); } catch { /* It already ended. */ }
     }
   }
+
   function schedule() {
     if (!enabled || hidden || context.state !== 'running') return;
     const now = context.currentTime;
@@ -93,6 +110,7 @@ export function createMusic(context, destination = context.destination, render =
       nextTime += STEP_SECONDS;
     }
   }
+
   function setEnabled(value) {
     if (enabled === value) return;
     enabled = value;
@@ -110,6 +128,7 @@ export function createMusic(context, destination = context.destination, render =
     timer = setInterval(schedule, 50);
     schedule();
   }
+
   function setHidden(value) {
     hidden = value;
     const now = context.currentTime;
@@ -121,6 +140,7 @@ export function createMusic(context, destination = context.destination, render =
       schedule();
     }
   }
+
   function dip() {
     const now = context.currentTime;
     output.gain.cancelScheduledValues(now);
@@ -128,10 +148,16 @@ export function createMusic(context, destination = context.destination, render =
     output.gain.linearRampToValueAtTime(0.28, now + 0.08);
     output.gain.linearRampToValueAtTime(enabled && !hidden ? 1 : 0, now + 1.4);
   }
-  return { setEnabled, setHidden, dip, renderEvent,
+
+  return {
+    setEnabled,
+    setHidden,
+    dip,
+    renderEvent,
     set seed(value) { seed = value >>> 0; },
     get seed() { return seed; },
     get activeVoices() { return voices.size; },
     get hidden() { return hidden; },
-    get enabled() { return enabled; } };
+    get enabled() { return enabled; },
+  };
 }

@@ -1,0 +1,589 @@
+/* Typefaces are served from vendor/fonts (Latin subset, SIL Open Font License; see
+   vendor/fonts/LICENSE-*.txt). The two upright files are variable fonts, so one file covers a weight range; the italic
+   file is a static Medium Italic. */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url(vendor/fonts/cormorant-garamond-latin.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url(vendor/fonts/cormorant-garamond-italic-latin.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(vendor/fonts/inter-latin.woff2) format('woff2');
+}
+
+:root {
+  --ink: #2b2a24;
+  --ink-soft: #5d5a4f;
+  --paper: rgba(252, 249, 240, 0.88);
+  --paper-solid: #fbf7ec;
+  --line: rgba(60, 55, 40, 0.14);
+  --moss: #4f6f3a;
+  --moss-bright: #6d9a4c;
+  --amber: #c58a2c;
+  --rust: #b0533c;
+  --shadow: 0 18px 50px rgba(30, 30, 20, 0.18), 0 2px 8px rgba(30, 30, 20, 0.08);
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #cfe3ee;
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+}
+
+#stage canvas {
+  display: block;
+  touch-action: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Read by screen readers, not drawn. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+kbd {
+  font-family: var(--sans);
+  font-size: 0.7em;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  opacity: 0.6;
+}
+
+/* Buttons */
+
+.button {
+  font: 500 15px/1 var(--sans);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.button:hover {
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(30, 30, 20, 0.12);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--moss-bright);
+  outline-offset: 2px;
+}
+
+.button.primary {
+  background: var(--moss);
+  color: #fbf7ec;
+  border-color: transparent;
+}
+
+.button.primary:hover {
+  background: #5c8044;
+}
+
+/* The sound button, top right. Its icon shows whether the sound is on: a speaker with waves, or
+   a speaker with a cross when muted. */
+.icon-button {
+  position: fixed;
+  right: 16px;
+  top: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(252, 249, 240, 0.7);
+  backdrop-filter: blur(6px);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 30;
+}
+
+.icon-button .icon-sound-off,
+.icon-button.muted .icon-sound-on {
+  display: none;
+}
+
+.icon-button.muted .icon-sound-off {
+  display: block;
+}
+
+/* Cards */
+
+.card {
+  background: var(--paper);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+/* The message shown when WebGL is missing */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.screen > * {
+  pointer-events: auto;
+}
+
+.title-card {
+  text-align: center;
+  max-width: 620px;
+  padding: 34px 40px 28px;
+  background: radial-gradient(ellipse at center, rgba(252, 249, 240, 0.82) 0%, rgba(252, 249, 240, 0.62) 60%, rgba(252, 249, 240, 0) 100%);
+  border-radius: 40px;
+}
+
+.title-card h1 {
+  font-size: clamp(46px, 9vw, 86px);
+  line-height: 0.95;
+}
+
+.lede {
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  margin: 14px 0 22px;
+}
+
+/* The top row: New pair at the left, the scoreboard in the middle, the sound button at the
+   right (see .icon-button). */
+
+.icon-button.new-button {
+  left: 16px;
+  right: auto;
+}
+
+/* Back to the js-toys arcade page (../index.html), alone in the bottom-left corner, away from
+   New pair and Hint. */
+.icon-button.arcade-button {
+  top: auto;
+  bottom: 12px;
+  left: 16px;
+  right: auto;
+}
+
+/* The scoreboard: three dots for the differences found in this pair, and the score. Kept clear
+   of the corner buttons on both sides, so it stays centred. */
+.scoreboard {
+  position: fixed;
+  top: 14px;
+  left: 72px;
+  right: 72px;
+  width: fit-content;
+  height: 40px;
+  margin: 0 auto;
+  padding: 0 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.progress {
+  display: flex;
+  gap: 5px;
+}
+
+.progress i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--moss);
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+.progress i.found {
+  background: var(--moss-bright);
+  border-color: var(--moss-bright);
+}
+
+.score-label {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* The serif's figures sit low like small letters (its 0 reads as an o), so the score uses the
+   sans. */
+.score {
+  font-family: var(--sans);
+  font-size: 19px;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* "+100" or "-20", large in the middle of the screen after a click, rising and fading. It never
+   takes a press. */
+.score-change {
+  position: fixed;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  font-family: var(--sans);
+  font-size: 56px;
+  font-weight: 800;
+  color: #fbf7ec;
+  text-shadow: 0 2px 0 var(--moss), 0 6px 22px rgba(20, 40, 10, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.score-change.loss {
+  text-shadow: 0 2px 0 var(--rust), 0 6px 22px rgba(60, 15, 5, 0.55);
+}
+
+.score-change.show {
+  animation: score-pop 1.1s ease-out;
+}
+
+@keyframes score-pop {
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(0.7); }
+  18% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  30% { transform: translate(-50%, -50%) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -90%) scale(1); }
+}
+
+/* When a round is done, New pair asks to be pressed: it turns green and pulses, with its name in a
+   label under it (under, not beside, so the label stays clear of the scoreboard on a phone). */
+.ready-label {
+  display: none;
+}
+
+.icon-button.new-button.ready {
+  background: var(--moss);
+  color: #fbf7ec;
+  border-color: transparent;
+  animation: ready-pulse 1.6s ease-in-out infinite;
+}
+
+.icon-button.new-button.ready .ready-label {
+  display: block;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--moss);
+  color: #fbf7ec;
+  font: 600 13px/1.2 var(--sans);
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+}
+
+@keyframes ready-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(109, 154, 76, 0.7); }
+  50% { box-shadow: 0 0 0 10px rgba(109, 154, 76, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-button.new-button.ready {
+    animation: none;
+    box-shadow: 0 0 0 4px rgba(109, 154, 76, 0.6);
+  }
+
+  .score-change.show {
+    animation-duration: 1.4s;
+    animation-name: score-fade;
+  }
+}
+
+@keyframes score-fade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Banner: the guide, the title and what to do, under the scoreboard. It fades out once the
+   player has started. Kept clear of the corner buttons on both sides, so it stays centred. It
+   holds only text, so presses go through it to the scene (and start the game, which hides it). */
+
+.banner {
+  pointer-events: none;
+  position: fixed;
+  top: 64px;
+  left: 72px;
+  right: 72px;
+  width: fit-content;
+  margin: 0 auto;
+  text-align: center;
+  padding: 10px 22px 10px;
+  z-index: 10;
+}
+
+.banner.dismissed {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+}
+
+.banner h1 {
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.hint {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* The bottom: the Hint button, and above it the result line once a round is done. The holder
+   itself is see-through and lets presses through to the trees; only its contents take them. */
+
+.bar {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 12px;
+  width: fit-content;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.bar > * {
+  pointer-events: auto;
+}
+
+/* The result line takes no room until a round is done. */
+.result {
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.result:empty {
+  display: none;
+}
+
+/* Solid, so it reads clearly over bright grass. */
+.bar .button {
+  font-size: 13px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  background: var(--paper-solid);
+  box-shadow: var(--shadow);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Small screens */
+
+@media (max-width: 640px) {
+  .icon-button {
+    top: 10px;
+    right: 12px;
+  }
+
+  .icon-button.new-button,
+  .icon-button.arcade-button {
+    left: 12px;
+  }
+
+  .icon-button.arcade-button {
+    top: auto;
+    bottom: 10px;
+  }
+
+  .scoreboard {
+    top: 10px;
+    left: 64px;
+    right: 64px;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 22px;
+  }
+
+  .banner {
+    top: 64px;
+    left: 12px;
+    right: 12px;
+    padding: 8px 14px;
+  }
+
+  .banner h1 {
+    font-size: 24px;
+  }
+
+  .hint {
+    font-size: 12px;
+  }
+
+  .bar {
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+  }
+
+  .result {
+    font-size: 14px;
+  }
+
+  .title-card {
+    padding: 24px 16px;
+  }
+}
+
+/* The narrowest phones: the dots and the number say enough, and leave room for a long score. */
+
+@media (max-width: 380px) {
+  .score-label {
+    display: none;
+  }
+}
+
+/* Short screens, such as a phone held sideways: a smaller top row and banner leave room for the
+   trees. */
+
+@media (max-height: 480px) {
+  .icon-button,
+  .scoreboard {
+    top: 6px;
+  }
+
+  .icon-button.arcade-button {
+    top: auto;
+    bottom: 6px;
+  }
+
+  .scoreboard {
+    height: 44px;
+  }
+
+  .banner {
+    top: 56px;
+    padding: 4px 12px;
+  }
+
+  .banner h1 {
+    font-size: 20px;
+  }
+
+  .banner .hint {
+    display: none;
+  }
+
+  .bar {
+    bottom: 6px;
+  }
+
+  .result {
+    font-size: 14px;
+  }
+}
+
+/* Any touch screen, even one whose main pointer is a mouse or trackpad: buttons big enough for a
+   finger (44 pixels), and no key labels, since there is often no keyboard. Narrow and short
+   windows get the same, as they are mostly phones. */
+
+@media (any-pointer: coarse), (max-width: 640px), (max-height: 480px) {
+  .bar .button,
+  .icon-button {
+    min-height: 44px;
+  }
+
+  .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .scoreboard {
+    height: 44px;
+  }
+
+  .bar .button {
+    padding: 8px 18px;
+  }
+
+  kbd {
+    display: none;
+  }
+}
+
+/* Opened as an installed app (doc/specs/OfflineApp.md), the game has no Back to Arcade: the
+   arcade page is not part of the app and is not kept for offline use. */
+@media (display-mode: standalone) {
+  .icon-button.arcade-button {
+    display: none;
+  }
+}

@@ -118,10 +118,10 @@
         color: var(--accent-yellow);
       }
 
-      /* Games Grid */
+      /* Games Grid (4x2 desktop, 2x4 mobile) */
       .grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 20px;
         width: 100%;
         margin-bottom: 32px;
@@ -370,6 +370,26 @@
       .card-jigsaw:hover .card-title { color: #eab676; }
       .card-jigsaw:hover .card-btn { background: #eab676; color: #000; border-color: #fff; }
 
+      .card-treediff:hover {
+        border-color: #7ccf4a;
+        box-shadow:
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000,
+          8px 8px 0 0 #000,
+          0 0 16px rgba(124, 207, 74, 0.5);
+      }
+      .card-treediff:hover .card-title {
+        color: #7ccf4a;
+      }
+      .card-treediff:hover .card-btn {
+        background: #7ccf4a;
+        color: #000;
+        border-color: #fff;
+        box-shadow: 0 0 8px #7ccf4a;
+      }
+
       /* Hover & Press Animations */
       .card:hover {
         transform: translateY(-6px) scale(1.02);
@@ -586,6 +606,15 @@
           <div class="card-icon card-icon-jigsaw" role="img" aria-label="Puzzle piece"><span class="emoji-glyph">🧩</span><svg viewBox="0 0 52 52" aria-hidden="true" focusable="false"><path d="M6 6h15c-1 5 1 8 5 8s6-3 5-8h15v15c-5-1-8 1-8 5s3 6 8 5v15H31c1-5-1-8-5-8s-6 3-5 8H6V31c5 1 8-1 8-5s-3-6-8-5z" fill="#eab676" stroke="#192032" stroke-width="2.5" stroke-linejoin="round"/></svg></div>
           <h2 class="card-title">Jigsaw</h2>
           <p class="card-desc">Piece together famous paintings</p>
+          <div class="card-btn">PLAY ▶</div>
+        </a>
+
+        <!-- 8. Tree Diff -->
+        <a class="card card-treediff" href="./treediff/index.html">
+          <span class="card-tag">GAME 08</span>
+          <div class="card-icon" role="img" aria-label="Tree">🌳</div>
+          <h2 class="card-title">Tree Diff</h2>
+          <p class="card-desc">Two trees, three differences. Spot them!</p>
           <div class="card-btn">PLAY ▶</div>
         </a>
       </nav>

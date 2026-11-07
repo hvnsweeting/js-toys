@@ -1,0 +1,15 @@
+{
+  "name": "Tree Appreciator",
+  "short_name": "Trees",
+  "description": "Two trees grew from one seed. Find the 3 ways they differ.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbf7ec",
+  "theme_color": "#4f6f3a",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tree Appreciator</title>
+  <meta name="description" content="Two trees grew from one seed. Find the 3 ways they differ.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%234f6f3a' d='M4.5 19.5C4 11 9 4.5 20 4c.4 10.5-6 16-15.5 15.5z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <!-- Installable app that also plays offline (doc/specs/OfflineApp.md). -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#4f6f3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Trees">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js",
+        "three/addons/": "./vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="stage" aria-hidden="true"></div>
+
+  <button id="new-pair" class="icon-button new-button" aria-label="New pair" title="New pair (N)">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5v14 M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span class="ready-label" aria-hidden="true">New pair</span>
+  </button>
+
+  <div id="scoreboard" class="card scoreboard">
+    <span id="progress" class="progress" role="img" aria-label="0 of 3 found"><i></i><i></i><i></i></span>
+    <span class="score-label">Score</span>
+    <span id="score" class="score">0</span>
+  </div>
+
+  <div id="score-change" class="score-change" aria-hidden="true"></div>
+  <p id="announce" class="visually-hidden" aria-live="polite"></p>
+
+  <header id="banner" class="card banner">
+    <h1>Find the 3 differences</h1>
+    <p id="instruction" class="hint" aria-live="polite"></p>
+  </header>
+
+  <div id="bar" class="bar">
+    <p id="result" class="card result"></p>
+    <button id="hint" class="button" disabled>Hint <kbd>H</kbd></button>
+  </div>
+
+  <a id="arcade" class="icon-button arcade-button" href="../index.html" aria-label="Back to Arcade" title="Back to Arcade">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+
+  <button id="mute" class="icon-button" aria-label="Mute" aria-pressed="false" title="Mute (M)">
+    <svg class="icon-sound-on" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z M16 8.5c1.5 1 1.5 6 0 7 M18.5 6c3 2.5 3 9.5 0 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="icon-sound-off" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z M16 9.5l5 5 M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <div id="webgl-error" class="screen hidden">
+    <div class="title-card">
+      <h1>Tree Appreciator</h1>
+      <p class="lede">This game needs WebGL, which this browser could not start.</p>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

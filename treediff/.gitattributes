@@ -1,0 +1,2 @@
+# Vendored files must stay byte for byte as downloaded, or their hashes in vendor/CHECKSUMS.txt stop matching.
+vendor/** -text
